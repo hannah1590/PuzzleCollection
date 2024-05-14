@@ -19,3 +19,6 @@ Planned features:
 * Difficulty levels
 
 Features implemented:
+
+DISCLAIMER:
+All code from DeanLib is from my Game Architecture professor: Dean Lawson, Champlain College. I did not edit or contribute to this code in any way.
