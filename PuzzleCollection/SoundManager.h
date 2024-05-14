@@ -4,7 +4,8 @@
 #include <map>
 using namespace std;
 
-class SoundManager:public Trackable
+// Controls allegro audio and sound samples
+class SoundManager : public Trackable
 {
 public:
 	SoundManager(int maxSamples);

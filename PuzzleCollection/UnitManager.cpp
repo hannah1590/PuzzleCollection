@@ -1,7 +1,8 @@
 #include "UnitManager.h"
+
 UnitManager::UnitManager()
 {
-	mNumAllocatedObjects = 0;
+	mNumAllocatedObjects = 0; // 0 units to start
 }
 
 UnitManager::~UnitManager()
@@ -9,6 +10,7 @@ UnitManager::~UnitManager()
 	clearUnits();
 }
 
+// Delete every unit still alive
 void UnitManager::clearUnits()
 {
 	for (auto i : mUnits)
@@ -19,6 +21,7 @@ void UnitManager::clearUnits()
 	mUnits.clear();
 }
 
+// Calls each unit's update function and checks if they need to be deleted
 void UnitManager::update(float frameRate)
 {
 	for (auto i : mUnits)
@@ -31,6 +34,7 @@ void UnitManager::update(float frameRate)
 	deleteUnit();
 }
 
+// Draw each unit 
 void UnitManager::draw(GraphicsSystem& pGraphicsSystem)
 {
 	for (auto i : mUnits)
@@ -39,6 +43,7 @@ void UnitManager::draw(GraphicsSystem& pGraphicsSystem)
 	}
 }
 
+// Draw each unit as invisible - prevents errors
 void UnitManager::drawInvisible(GraphicsSystem& pGraphicsSystem)
 {
 	for (auto i : mUnits)
@@ -47,6 +52,7 @@ void UnitManager::drawInvisible(GraphicsSystem& pGraphicsSystem)
 	}
 }
 
+// Add a unit to the vector and allocate memory for it if there is room - prevents excessive units being made
 void UnitManager::addUnit(Unit& newUnit)
 {
 	if (mNumAllocatedObjects < MAX_NUM_OBJECTS)
@@ -56,6 +62,7 @@ void UnitManager::addUnit(Unit& newUnit)
 	}
 }
 
+// Deletes and frees a unit if it is outside of the screen
 void UnitManager::deleteUnit() 
 {
 	for (auto i : mUnits)
@@ -76,6 +83,7 @@ void UnitManager::deleteUnit()
 	}
 }
 
+// Chages a specific unit's animation and adds to the score
 void UnitManager::changeUnitAnimation(Unit& unit)
 {
 	if (!unit.getAnimationChange())
@@ -89,6 +97,7 @@ void UnitManager::changeUnitAnimation(Unit& unit)
 	}
 }
 
+// Get the unit at the specified location
 Unit* UnitManager::getObjectAtLocation(Vector2D loc)
 {
 	for (auto i : mUnits)
@@ -103,11 +112,13 @@ Unit* UnitManager::getObjectAtLocation(Vector2D loc)
 	}
 }
 
+// Resets amount of units allocated
 void UnitManager::resetObjectPool()
 {
 	mNumAllocatedObjects = 0;
 }
 
+// Allocates space for a unit
 Unit* UnitManager::allocateObject(Unit& unit)
 {
 	mNumAllocatedObjects++;
@@ -117,10 +128,10 @@ Unit* UnitManager::allocateObject(Unit& unit)
 
 void UnitManager::freeObject(Unit& ptr)
 {
-	//make sure that the address passed in is actually one managed by this pool
+	// Make sure that the address passed in is actually one managed by this pool
 	if (contains(ptr))
 	{
-		//add address back to free list
+		// Add address back to free list
 		ptr.free();
 		mNumAllocatedObjects--;
 	}
@@ -130,6 +141,7 @@ void UnitManager::freeObject(Unit& ptr)
 	}
 }
 
+// Checks if unit is in the vector
 bool UnitManager::contains(Unit& ptr) const
 {
 	for (auto i : mUnits)

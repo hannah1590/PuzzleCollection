@@ -1,4 +1,5 @@
 #include "GraphicsSystem.h"
+
 GraphicsSystem::GraphicsSystem()
 {
 	mDisplay = NULL;
@@ -16,6 +17,7 @@ void GraphicsSystem::createDisplay(int width, int height)
 	assert(mDisplay);
 }
 
+// Inits all allegro systems needed
 bool GraphicsSystem::initGraphics() 
 {
 	bool didInit1;
@@ -64,6 +66,7 @@ void GraphicsSystem::flip()
 	al_flip_display();
 }
 
+// Draw back buffer based on sprite location
 void GraphicsSystem::drawBackbuffer(const Vector2D& targetLoc, Sprite& sprite, float scale) 
 {
 	float sx = sprite.getSoureLoc().getX();
@@ -78,6 +81,7 @@ void GraphicsSystem::drawBackbuffer(const Vector2D& targetLoc, Sprite& sprite, f
 	al_draw_scaled_bitmap(sprite.getGraphicsBuffer()->mBitmap, sx, sy, sw, sh, dx, dy, dw, dh, 0);
 }
 
+// Draws sprite graphics buffer ontop of current buffer
 void GraphicsSystem::drawGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, Sprite& sprite, float scale) 
 {
 	ALLEGRO_BITMAP* pOldTarget = al_get_target_bitmap();
@@ -97,6 +101,7 @@ void GraphicsSystem::drawGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, co
 	al_set_target_bitmap(pOldTarget);
 } 
 
+// Draw backbuffer
 void GraphicsSystem::drawBackbuffer(const Vector2D& targetLoc, GraphicsBuffer& destination, float scale) 
 {
 	float sx = 0.0f;
@@ -111,6 +116,7 @@ void GraphicsSystem::drawBackbuffer(const Vector2D& targetLoc, GraphicsBuffer& d
 	al_draw_scaled_bitmap(destination.mBitmap, sx, sy, sw, sh, dx, dy, dw, dh, 0);
 }
 
+// Draw graphics buffer on top of current buffer
 void GraphicsSystem::drawGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, GraphicsBuffer& destination, float scale) 
 {
 	ALLEGRO_BITMAP* pOldTarget = al_get_target_bitmap();
@@ -130,12 +136,14 @@ void GraphicsSystem::drawGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, co
 	al_set_target_bitmap(pOldTarget);
 } 
 
+// Write text on back buffer
 void GraphicsSystem::writeTextToBackbuffer(const Vector2D& targetLoc, Font& font, Color& color, const std::string& text) 
 {
 	const ALLEGRO_COLOR pColor = al_map_rgba(color.getR(), color.getG(), color.getB(), color.getA());
 	al_draw_text(font.mFont, pColor, targetLoc.getX(), targetLoc.getY(), ALLEGRO_ALIGN_LEFT, text.c_str());
 }
 
+// Write text on top of current buffer
 void GraphicsSystem::writeTextToGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, Font& font, Color& color, const std::string& text) 
 {
 	ALLEGRO_BITMAP* pOldTarget = al_get_target_bitmap();
@@ -152,6 +160,7 @@ void GraphicsSystem::saveBuffer(GraphicsBuffer& buffer, const std::string& filen
 	al_save_bitmap(filename.c_str(), buffer.mBitmap);
 }
 
+// Make bitmap a specific color
 void GraphicsSystem::setBitmapToColor(GraphicsBuffer& bitmap, Color& color)
 {
 	ALLEGRO_BITMAP* pOldTarget = al_get_target_bitmap();

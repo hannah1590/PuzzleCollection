@@ -5,7 +5,8 @@
 #include "InterfaceEvent.h"
 #include "GameEvent.h"
 
-class InputTranslator: public EventListener
+// Translates InterfaceEvents into GameEvents
+class InputTranslator : public EventListener
 {
 public:
 	InputTranslator();

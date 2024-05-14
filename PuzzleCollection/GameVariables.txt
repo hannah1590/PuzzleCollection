@@ -12,5 +12,6 @@ increase variables every ? seconds
 speed increase rate
 spawn radius increase rate
 random chance increase rate
+inital point value
 points earned for each orb clicked
 points lost for each orb out of bounds

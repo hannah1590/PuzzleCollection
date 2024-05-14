@@ -3,6 +3,7 @@
 #include "Font.h"
 #include "Color.h"
 
+// Loads all UI elements of game
 class HUD : public Trackable
 {
 public:

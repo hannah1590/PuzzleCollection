@@ -4,6 +4,7 @@ GraphicsBufferManager::~GraphicsBufferManager()
 	clear();
 }
 
+// Cleans map and deletes GraphicsBuffer pointers
 void GraphicsBufferManager::clear()
 {
 	for (auto i : mGraphicsBuffers)

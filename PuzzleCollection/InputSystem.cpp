@@ -9,6 +9,7 @@ InputSystem::~InputSystem()
 	cleanup();
 }
 
+// Inits allegro mouse and keyboard systems/events
 bool InputSystem::init()
 {
 	bool initKeyboard;
@@ -48,6 +49,7 @@ void InputSystem::cleanup()
 	al_uninstall_mouse();
 }
 
+// Gets current key pressed
 bool InputSystem::getKeyState(InputKeys keyCheck)
 {
 	ALLEGRO_KEYBOARD_STATE state;
@@ -55,6 +57,7 @@ bool InputSystem::getKeyState(InputKeys keyCheck)
 	return al_key_down(&state, keyCheck);
 }
 
+// Gets mouse button pressed
 bool InputSystem::getMouseState(InputKeys mouseCheck)
 {
 	ALLEGRO_MOUSE_STATE state;
@@ -63,6 +66,7 @@ bool InputSystem::getMouseState(InputKeys mouseCheck)
 	else return false;
 }
 
+// Gets mouse location on screen
 Vector2D InputSystem::getMouseLocation()
 {
 	ALLEGRO_MOUSE_STATE state;
@@ -70,6 +74,7 @@ Vector2D InputSystem::getMouseLocation()
 	return Vector2D(state.x, state.y);
 }
 
+// Fires an event when its corresponding input is used
 void InputSystem::updateEvents()
 {
 	EventSystem* pEventSystem = EventSystem::getInstance();

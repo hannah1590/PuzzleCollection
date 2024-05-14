@@ -120,4 +120,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="GameVariables.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="GameVariablesValues.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="SoundEffects.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="SoundEffectsFileNames.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

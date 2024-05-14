@@ -1,11 +1,4 @@
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_acodec.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-
+#include "AllegroInclude.h"
 #include <iostream>
 #include <cassert>
 #include <string>
@@ -21,19 +14,24 @@
 
 int main()
 {
+	// Inits singular event system
 	EventSystem::initInstance();
 	EventSystem* pEventSystem = EventSystem::getInstance();
 	pEventSystem->init();
 
+	// Inits singular game
 	Game::initInstance();
 	Game* pGame = Game::getInstance();
 	pGame->init();
 
+	// Plays game
 	pGame->doLoop();
 	
+	// Cleans up game and event system
 	Game::cleanupInstance();
 	EventSystem::cleanupInstance();
 
+	// Checks for memory leaks
 	MemoryTracker::getInstance()->reportAllocations(cout);
 
 	system("pause");

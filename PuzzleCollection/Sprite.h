@@ -1,6 +1,8 @@
 #pragma once
 #include "GraphicsBuffer.h"
-class Sprite:public Trackable
+
+// Holds the data for a single sprite
+class Sprite : public Trackable
 {
 public:
 	Sprite() = default;

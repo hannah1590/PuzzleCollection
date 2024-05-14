@@ -8,6 +8,7 @@
 #include "Color.h"
 using namespace std;
 
+// Handles allegro draw functions and buffers
 class GraphicsSystem:public Trackable
 {
 public:

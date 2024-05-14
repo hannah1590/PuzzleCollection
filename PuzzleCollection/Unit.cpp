@@ -1,4 +1,5 @@
 #include "Unit.h"
+
 Unit::Unit(GraphicsBufferManager& graphicsBuffer, Vector2D location, Vector2D velocity, int speed)
 {
 	mIsFree = false;
@@ -13,6 +14,8 @@ Unit::Unit(GraphicsBufferManager& graphicsBuffer, Vector2D location, Vector2D ve
 	addAnimation(*createAnimation(BLUE_BALL_INDEX, graphicsBuffer));
 }
 
+// TO-DO: make animations in animation class instead
+// Makes an animation that contains each sprite
 Animation* Unit::createAnimation(int index, GraphicsBufferManager& graphicsBuffer)
 {
 	Sprite sprite;
@@ -21,7 +24,10 @@ Animation* Unit::createAnimation(int index, GraphicsBufferManager& graphicsBuffe
 
 	for (int i = 0; i < SPRITES_ACROSS * SPRITES_DOWN; i++)
 	{
+		// Moves to next column
 		int xPlacement = i % SPRITES_ACROSS;
+
+		// Moves to next row
 		if (i % SPRITES_ACROSS == 0)
 		{
 			yMultiply++;
@@ -45,6 +51,7 @@ Unit::~Unit()
 	cleanup();
 }
 
+// Deletes all animations for a Unit
 void Unit::cleanup()
 {
 	for (auto i : mAnimations)
@@ -55,6 +62,7 @@ void Unit::cleanup()
 	mAnimations.clear();
 }
 
+// Update the animation's current sprite and location based on velocity
 void Unit::update(double frameRate)
 {
 	mAnimations[mCurrentIndex]->update(frameRate);
@@ -62,18 +70,21 @@ void Unit::update(double frameRate)
 	mLocation += mVelocity * (frameRate / 1000);
 }
 
+// Draw the unit to the backbuffer
 void Unit::draw(GraphicsSystem& pGraphicsSystem)
 {
 	Vector2D size = mAnimations[mCurrentIndex]->getCurrentSprite().getSize();
 	pGraphicsSystem.drawBackbuffer(mLocation - Vector2D(size.getX() / 2, size.getY() / 2), mAnimations[mCurrentIndex]->getCurrentSprite(), 1.0f);
 }
 
+// Draw an invisible unit to prevent errors
 void Unit::drawInvisible(GraphicsSystem& pGraphicsSystem)
 {
 	Vector2D size = mAnimations[mCurrentIndex]->getCurrentSprite().getSize();
 	pGraphicsSystem.drawBackbuffer(mLocation - Vector2D(size.getX() / 2, size.getY() / 2), mAnimations[mCurrentIndex]->getCurrentSprite(), 0.0f);
 }
 
+// Change the current animation of the unit
 void Unit::setAnimation()
 {
 	mCurrentIndex++;

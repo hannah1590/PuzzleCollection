@@ -7,6 +7,7 @@ Game::Game()
 	getVariables();
 	getSounds();
 
+	// Initialize all game systems
 	mInputSystem = new InputSystem;
 	mGraphicsSystem = new GraphicsSystem;
 	mGraphicsBufferManager = new GraphicsBufferManager;
@@ -16,17 +17,19 @@ Game::Game()
 	mSoundManager = new SoundManager(mMaxSamples);
 }
 
+// End game
 Game::~Game()
 {
 	cleanup();
 }
 
+// Initialize game variables from file
 void Game::getVariables()
 {
 	ifstream gameVariables(FILE_PATH + GAME_VARIABLES_FILENAME);
 	if (!gameVariables.is_open())
 	{
-		cout << "Error getting file";
+		cout << "Error getting GameVariables file" << endl;
 	}
 	gameVariables >> mMinVelocity >> mMaxVelocity >>
 		mMinSpeed >> mMaxSpeed >>
@@ -34,17 +37,18 @@ void Game::getVariables()
 		mSpawnRadius >> mSpawnRadiusCap >>
 		mRandomChance >> mRandomChanceCap >>
 		mSecondsUntilIncrease >> mSpeedIncreaseRate >>
-		mSpawnIncreaseRate >> mRandomChanceIncreaseRate >>
-		mPointIncrease >> mPointDecrease;
+		mSpawnIncreaseRate >> mRandomChanceIncreaseRate >> 
+		mPoints >> mPointIncrease >> mPointDecrease;
 	gameVariables.close();
 }
 
+// Initialize sound wavs from file
 void Game::getSounds()
 {
 	ifstream soundFiles(FILE_PATH + SOUND_FILENAMES_LOCATION);
 	if (!soundFiles.is_open())
 	{
-		cout << "Error getting file";
+		cout << "Error getting SoundEffects file" << endl;
 	}
 	getline(soundFiles, mDeathSound);
 	getline(soundFiles, mGameOverSound);
@@ -56,6 +60,7 @@ void Game::getSounds()
 
 void Game::init()
 {
+	// Inits all game systems
 	if (!mInputSystem->init())
 	{
 		cout << "ERROR - Input system installation failed\n";
@@ -68,6 +73,7 @@ void Game::init()
 		system("pause");
 	}
 
+	// No need to pause since sound isn't game breaking
 	if (!mSoundManager->init())
 	{
 		cout << "ERROR - Sound init failed\n";
@@ -75,12 +81,13 @@ void Game::init()
 
 	mGraphicsSystem->createDisplay(DISP_WIDTH, DISP_HEIGHT);
 
+	// Make sure only one instance of game exists
 	if (mIsInitted)
 	{
 		cleanup();
 	}
 
-	// add game events
+	// Add game events
 	EventSystem* pEventSystem = EventSystem::getInstance();
 	pEventSystem->addListener((EventType)START_GAME_EVENT, this);
 	pEventSystem->addListener((EventType)PAUSING_GAME_EVENT, this);
@@ -90,7 +97,7 @@ void Game::init()
 	pEventSystem->addListener((EventType)ADDING_SCORE_EVENT, this);
 	pEventSystem->addListener((EventType)REMOVING_SCORE_EVENT, this);
 
-	// add sounds
+	// Add sounds
 	mSoundManager->loadSample(mDeathIndex, ASSET_PATH + SOUND_ASSET_PATH + mDeathSound);
 	mSoundManager->loadSample(mGameOverIndex, ASSET_PATH + SOUND_ASSET_PATH + mGameOverSound);
 	mSoundManager->loadSample(mChangeSpriteIndex, ASSET_PATH + SOUND_ASSET_PATH + mChangeSpriteSound);
@@ -98,6 +105,7 @@ void Game::init()
 	mIsInitted = true;
 }
 
+// Delete game systems in opposite order of creation
 void Game::cleanup()
 {
 	delete mSoundManager;
@@ -110,6 +118,7 @@ void Game::cleanup()
 	mIsInitted = false;
 }
 
+// Main game loop
 void Game::doLoop()
 {
 	PerformanceTracker* pPerformanceTracker = new PerformanceTracker;
@@ -128,9 +137,11 @@ void Game::doLoop()
 
 	int bufferIndex = 0;
 
+	// Add each graphics buffer to the manager
 	mGraphicsBufferManager->addBuffer(bufferIndex, *pBlackBuffer); bufferIndex++;
 	mGraphicsBufferManager->addBuffer(bufferIndex, *pRedBallBuffer); bufferIndex++;
 	mGraphicsBufferManager->addBuffer(bufferIndex, *pBlueBallBuffer); bufferIndex++;
+
 	srand((unsigned int)time(NULL));
 
 	double frames = 0;
@@ -141,11 +152,13 @@ void Game::doLoop()
 
 	while (mIsLooping)
 	{
+		// Start loop timer
 		pPerformanceTracker->clearTracker("loop");
 		pPerformanceTracker->startTracking("loop");
 		Timer timer;
 		timer.start();
 
+		// TO DO: make function to load UI screens
 		// loads start screen
 		while (!mHasStarted)
 		{
@@ -158,6 +171,7 @@ void Game::doLoop()
 
 			mGraphicsSystem->flip();
 
+			// Makes sure in-game timer stays accurate when game first starts
 			start.sleepUntilElapsed(targetTime);
 			mTimePaused += start.getElapsedTime();
 			mTimeElapsed += start.getElapsedTime();
@@ -176,13 +190,14 @@ void Game::doLoop()
 
 			mGraphicsSystem->flip();
 
+			// Makes sure in-game timer stays accurate when game is paused
 			paused.sleepUntilElapsed(targetTime);
 			mTimePaused += paused.getElapsedTime();
 			mTimeElapsed += paused.getElapsedTime();
 			timer.start();
 		}
 
-		// loads game over screen
+		// Loads game over screen
 		if (mPoints <= 0)
 		{
 			while (mIsLooping)
@@ -194,8 +209,10 @@ void Game::doLoop()
 			}
 		}
 
+		// Loads game screen
 		loadScreen(targetTime);
 		
+		// Creates a sphere on a random chance every frame
 		int random = rand() % mRandomChance + 1;
 		if (random == 1)
 		{
@@ -205,7 +222,7 @@ void Game::doLoop()
 		mHUD->fps((frames / deltaTime) * 1000);
 		mGraphicsSystem->flip();
 
-		// increases variables if a certain number of seconds has passed
+		// Increases variables if a certain number of seconds has passed
 		if (secondsPassed % mSecondsUntilIncrease == 0 && !happened)
 		{
 			mMinSpeed += mSpeedIncreaseRate;
@@ -236,13 +253,15 @@ void Game::doLoop()
 		pPerformanceTracker->stopTracking("loop");
 
 		mTimeElapsed += timer.getElapsedTime();
-		if ((int)mTimeElapsed / 1000 > secondsPassed) // makes sure data driven variables increase only once a second
+
+		// Makes sure data driven variables increase only once a second
+		if ((int)mTimeElapsed / 1000 > secondsPassed) 
 		{
 			happened = false;
 		}
 		secondsPassed = mTimeElapsed / 1000;
 
-		// calculate frames and deltatime
+		// Calculate frames and deltatime
 		frames++;
 		deltaTime += timer.getElapsedTime();
 		if (frames == frameRate)
@@ -254,6 +273,7 @@ void Game::doLoop()
 	delete pPerformanceTracker;
 }
 
+// Loads and updates the current state of the game
 void Game::loadScreen(double targetTime)
 {
 	mInputSystem->updateEvents();
@@ -273,6 +293,7 @@ void Game::loadScreen(double targetTime)
 	mHUD->timer((mTimeElapsed - mTimePaused) / 1000);
 }
 
+// Recieves and applies events
 void Game::handleEvent(const Event& theEvent)
 {
 	const GameEvent& gameEvent = static_cast<const GameEvent&>(theEvent);
@@ -315,6 +336,7 @@ void Game::handleEvent(const Event& theEvent)
 	}
 }
 
+// Creates a sphere at a random speed, velocity, and spawn location based on game variables
 void Game::createRandomUnit()
 {
 	if (mUnitManager->getMaxObjectects() > mUnitManager->getAllocatedObjects()) 

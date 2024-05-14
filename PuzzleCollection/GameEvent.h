@@ -14,6 +14,7 @@ enum GameEventType
 	NUM_GAME_EVENT_TYPES
 };
 
+// Stores all game events
 class GameEvent : public Event
 {
 public:

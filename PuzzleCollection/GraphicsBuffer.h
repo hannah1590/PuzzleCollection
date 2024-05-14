@@ -2,11 +2,11 @@
 #include "AllegroInclude.h"
 #include <Vector2D.h>
 
-class GraphicsBuffer:public Trackable
+// Handles allegro bitmaps
+class GraphicsBuffer : public Trackable
 {
 	friend class GraphicsSystem;
 public:
-	
 	GraphicsBuffer(int width, int height);
 	GraphicsBuffer(const std::string& filename);
 	~GraphicsBuffer();

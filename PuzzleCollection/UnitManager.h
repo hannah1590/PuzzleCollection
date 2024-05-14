@@ -3,7 +3,8 @@
 #include "GameEvent.h"
 #include "EventSystem.h"
 
-class UnitManager:public Trackable
+// Contains and manages all currently alive units
+class UnitManager : public Trackable
 {
 public:
 	UnitManager();

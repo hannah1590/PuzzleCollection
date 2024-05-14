@@ -22,7 +22,8 @@ class UnitManager;
 class GraphicsBufferManager;
 class InputTranslator;
 
-class Game:public EventListener
+// Controls all game systems
+class Game : public EventListener
 {
 public:
 	static Game* getInstance();
@@ -61,30 +62,37 @@ private:
 	bool mHasStarted = false;
 	bool mHasPaused = false;
 
-	int mMinVelocity = -100;
-	int mMaxVelocity = 100;
-	int mMinSpeed = 10;
-	int mMaxSpeed = 60;
+	// Variables from original project; Changable in GameVariableValues.txt
+	int mMinVelocity;
+	int mMaxVelocity;
+	int mMinSpeed;
+	int mMaxSpeed;
 
-	int mMaxSpeedCap = 100;
-	int mMinSpeedCap = 50;
+	int mMaxSpeedCap;
+	int mMinSpeedCap;
 
-	int mSpawnRadius = 0;
-	int mSpawnRadiusCap = 50;
+	int mSpawnRadius;
+	int mSpawnRadiusCap;
 
-	int mRandomChance = 50;
-	int mRandomChanceCap = 20;
+	int mRandomChance;
+	int mRandomChanceCap;
 
-	int mSecondsUntilIncrease = 10;
+	int mSecondsUntilIncrease;
 
-	int mSpeedIncreaseRate = 5;
-	int mSpawnIncreaseRate = 5;
-	int mRandomChanceIncreaseRate = 5;
+	int mSpeedIncreaseRate;
+	int mSpawnIncreaseRate;
+	int mRandomChanceIncreaseRate;
+
+	int mPoints;
+	int mPointIncrease;
+	int mPointDecrease;
+
 
 	const int DISP_WIDTH = 800;
 	const int DISP_HEIGHT = 600;
 
-	const string FILE_PATH = "..\\..\PuzzleCollection\\PuzzleCollection\\";
+	// File paths; TO-DO: change to editable in tex doc 
+	const string FILE_PATH = "..\\..\\PuzzleCollection\\PuzzleCollection\\";
 	const string GAME_VARIABLES_FILENAME = "GameVariablesValues.txt";
 	const string SOUND_FILENAMES_LOCATION = "SoundEffectsFileNames.txt";
 
@@ -92,23 +100,19 @@ private:
 	const string GLOW_BALLS_FILENAME = "glowing-balls.png";
 
 	const string SOUND_ASSET_PATH = "minetrap\\";
-	string mDeathSound = "KILLED.WAV";
-	string mGameOverSound = "NEGFAN.WAV";
-	string mChangeSpriteSound = "BLIP.WAV";
-	string mSpawnSound = "POWERPK.WAV";
 
+	// Found in SoundEffectFileNames.txt
+	string mDeathSound;
+	string mGameOverSound;
+	string mChangeSpriteSound;
+	string mSpawnSound;
+	int mMaxSamples;
+
+	// Index for each sound effect
 	int mDeathIndex = 0;
 	int mGameOverIndex = 1;
 	int mChangeSpriteIndex = 2;
 	int mSpawnIndex = 3;
-	int mMaxSamples = 4;
-	
-	const string FONT_FILENAME = "cour.ttf";
-	const int FONT_SIZE = 50;
-
-	int mPoints = 10;
-	int mPointIncrease = 1;
-	int mPointDecrease = 5;
 
 	Game();
 	~Game();

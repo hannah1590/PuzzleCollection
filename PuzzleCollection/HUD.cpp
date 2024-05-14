@@ -9,6 +9,9 @@ HUD::~HUD()
 {
 }
 
+// TO-DO: allow UI screen variables to be adjusted in a text file
+
+// Displays welcome screen
 void HUD::welcomeScreen()
 {
 	Vector2D loc1(300, 200);
@@ -22,6 +25,7 @@ void HUD::welcomeScreen()
 	mGraphicsSystem->writeTextToBackbuffer(loc2, font, white, text2);
 }
 
+// Displays pause screen
 void HUD::pauseScreen()
 {
 	Vector2D loc1(300, 200);
@@ -38,6 +42,7 @@ void HUD::pauseScreen()
 	mGraphicsSystem->writeTextToBackbuffer(loc3, font, white, text3);
 }
 
+// Displays game over screen
 void HUD::gameOver()
 {
 	Vector2D loc1(300, 200);
@@ -51,6 +56,7 @@ void HUD::gameOver()
 	mGraphicsSystem->writeTextToBackbuffer(loc2, font, white, text2);
 }
 
+// Displays score UI
 void HUD::score(int score)
 {
 	Vector2D loc(0, 0);
@@ -61,6 +67,7 @@ void HUD::score(int score)
 	mGraphicsSystem->writeTextToBackbuffer(loc, font, white, text);
 }
 
+// Displays fps
 void HUD::fps(float fps)
 {
 	Vector2D loc(500, 0);
@@ -71,6 +78,7 @@ void HUD::fps(float fps)
 	mGraphicsSystem->writeTextToBackbuffer(loc, font, white, text);
 }
 
+// Displays timer UI
 void HUD::timer(int timer)
 {
 	Vector2D loc(500, 500);

@@ -1,7 +1,9 @@
 #pragma once
 #include "GraphicsBuffer.h"
 #include <map>
-class GraphicsBufferManager:public Trackable
+
+// Stores all graphics buffers
+class GraphicsBufferManager : public Trackable
 {
 public:
 	GraphicsBufferManager() = default;

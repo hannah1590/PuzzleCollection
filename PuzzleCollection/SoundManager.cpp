@@ -4,6 +4,7 @@ SoundManager::SoundManager(int maxSamples)
 	mMaxNumOfSamples = maxSamples;
 }
 
+// Cleans and destroys all sounds
 SoundManager::~SoundManager()
 {
 	for (auto i : mSamples)
@@ -13,6 +14,7 @@ SoundManager::~SoundManager()
 	mSamples.clear();
 }
 
+// Inits all allegro sound systems
 bool SoundManager::init() 
 {
 	if (!al_install_audio())
@@ -33,6 +35,7 @@ bool SoundManager::init()
 	return true;
 }
 
+// Fills sample map
 void SoundManager::loadSample(int index, const std::string& filename)
 {
 	mSamples.emplace(index, al_load_sample((filename).c_str()));

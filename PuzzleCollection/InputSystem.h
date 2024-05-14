@@ -3,6 +3,7 @@
 #include "InterfaceEvent.h"
 #include <EventSystem.h>
 
+// All current supported inputs
 enum InputKeys
 {
 	LEFT_MOUSE = 1, // Click on an orb to change animation
@@ -14,7 +15,8 @@ enum InputKeys
 	ESCAPE = ALLEGRO_KEY_ESCAPE // Pause screen; exit application when paused
 };
 
-class InputSystem:public Trackable
+// Controls allegro keyboard and mouse 
+class InputSystem : public Trackable
 {
 public:
 	InputSystem();

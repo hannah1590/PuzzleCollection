@@ -10,6 +10,7 @@ enum InterfaceEventType
 	NUM_INTERFACE_EVENT_TYPES
 };
 
+// Stores all interface events
 class InterfaceEvent : public Event
 {
 public:

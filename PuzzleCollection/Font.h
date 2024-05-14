@@ -4,7 +4,8 @@
 #include <string>
 #include "GraphicsBuffer.h"
 
-class Font:public Trackable
+// Holds all font information
+class Font : public Trackable
 {
 	friend class GraphicsSystem;
 public:

@@ -2,7 +2,11 @@
 #include "Animation.h"
 #include "GraphicsSystem.h"
 #include "GraphicsBufferManager.h"
-class Unit:public Trackable
+
+// TO-DO: Update so that backbuffer indices are loaded into the unit and not constants
+
+// Holds all data for a single unit
+class Unit : public Trackable
 {
 public:
 	Unit(GraphicsBufferManager& graphicsBuffer, Vector2D location, Vector2D velocity, int speed);
@@ -42,10 +46,7 @@ private:
 	bool mIsFree;
 	bool mDidAnimationChange;
 
-	const int WOODS_INDEX = 0;
-	const int SMURFS_INDEX = 1;
-	const int DEAN_INDEX = 2;
-
+	// Backbuffer indices
 	const int BLACK_SCREEN_INDEX = 0;
 	const int RED_BALL_INDEX = 1;
 	const int BLUE_BALL_INDEX = 2;

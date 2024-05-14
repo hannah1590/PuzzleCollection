@@ -1,6 +1,8 @@
 #pragma once
 #include "GraphicsBuffer.h"
-class Color:public Trackable
+
+// Stores color variables to limit calls to allegro
+class Color : public Trackable
 {
 public:
 	Color(int r, int g, int b, int a);
