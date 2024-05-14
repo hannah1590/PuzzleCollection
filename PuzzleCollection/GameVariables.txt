@@ -1,0 +1,16 @@
+min velocity
+max velocity
+min speed
+max speed
+max speed cap
+min speed cap
+starting spawn radius
+spawn radius cap
+random chance of unit spawning (1 out of ? chance)
+random chance cap
+increase variables every ? seconds
+speed increase rate
+spawn radius increase rate
+random chance increase rate
+points earned for each orb clicked
+points lost for each orb out of bounds
