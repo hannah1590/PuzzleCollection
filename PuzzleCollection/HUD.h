@@ -2,7 +2,9 @@
 #include "GraphicsSystem.h"
 #include "Font.h"
 #include "Color.h"
+#include "Timer.h"
 
+// Done by Nate
 // Loads all UI elements of game
 class HUD : public Trackable
 {
@@ -10,20 +12,22 @@ public:
 	HUD(GraphicsSystem& graphicsSystem);
 	~HUD();
 
-	void welcomeScreen();
-	void pauseScreen();
-	void gameOver();
+	void update(int score, float savedTime);
+	void pauseTimer();
+	void reset();
 
-	void score(int score);
-	void fps(float fps);
-	void timer(int timer);
+	float getTime() { return mTime; }
 private:
+	void draw();
+
 	GraphicsSystem* mGraphicsSystem;
+
+	string mScoreText, mTimeText;
+	Timer mTimer;
+	float mTime;
+	int mScore;
 
 	const string ASSET_PATH = "..\\..\\PuzzleCollection\\libraries\\assets\\";
 	const string FONT_FILENAME = "cour.ttf";
 	const int FONT_SIZE = 50;
-
-	const int DISP_WIDTH = 800;
-	const int DISP_HEIGHT = 600;
 };

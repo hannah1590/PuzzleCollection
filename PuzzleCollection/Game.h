@@ -8,6 +8,8 @@
 #include "InputTranslator.h"
 #include "HUD.h"
 #include "SoundManager.h"
+#include "MenuManager.h"
+#include "GridManager.h"
 #include <EventListener.h>
 
 #include "Timer.h"
@@ -35,14 +37,16 @@ public:
 
 	void createRandomUnit();
 
+	void save();
+	void loadSave();
+	void getVariables();
+	void getSounds();
+
 	void doLoop();
 	void loadScreen(double targetTime);
 	void handleEvent(const Event& theEvent);
 
 	InputSystem* getInputSystem() { return mInputSystem; }
-
-	void getVariables();
-	void getSounds();
 private:
 	static Game* mspInstance;
 	bool mIsInitted = false;
@@ -54,6 +58,8 @@ private:
 	InputTranslator* mInputTranslator;
 	HUD* mHUD;
 	SoundManager* mSoundManager;
+	MenuManager* mMenuManager;
+	GridManager* mGridManager;
 
 	int mTimeElapsed = 0;
 	int mTimePaused = 0;
@@ -86,6 +92,8 @@ private:
 	int mPoints;
 	int mPointIncrease;
 	int mPointDecrease;
+
+	float mSavedTime;
 
 
 	const int DISP_WIDTH = 800;

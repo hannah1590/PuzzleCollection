@@ -125,11 +125,13 @@
     <ClCompile Include="GraphicsBuffer.cpp" />
     <ClCompile Include="GraphicsBufferManager.cpp" />
     <ClCompile Include="GraphicsSystem.cpp" />
+    <ClCompile Include="GridManager.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="InputTranslator.cpp" />
     <ClCompile Include="InterfaceEvent.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Unit.cpp" />
@@ -145,10 +147,12 @@
     <ClInclude Include="GraphicsBuffer.h" />
     <ClInclude Include="GraphicsBufferManager.h" />
     <ClInclude Include="GraphicsSystem.h" />
+    <ClInclude Include="GridManager.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="InputTranslator.h" />
     <ClInclude Include="InterfaceEvent.h" />
+    <ClInclude Include="MenuManager.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Unit.h" />

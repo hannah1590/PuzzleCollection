@@ -170,3 +170,16 @@ void GraphicsSystem::setBitmapToColor(GraphicsBuffer& bitmap, Color& color)
 
 	al_set_target_bitmap(pOldTarget);
 }
+
+// By Nate
+void GraphicsSystem::drawButtons(int amount, float spacing, float size, float x1, float y1, Color& color)
+{
+	const ALLEGRO_COLOR pColor = al_map_rgba(color.getR(), color.getG(), color.getB(), color.getA());
+
+	for (int i = 0; i < amount; i++)
+	{
+		float x = x1;
+		float y = y1 + (spacing * i);
+		al_draw_filled_rectangle(x, y, x + size, y + size, pColor);
+	}
+}

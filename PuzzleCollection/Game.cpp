@@ -15,12 +15,27 @@ Game::Game()
 	mInputTranslator = new InputTranslator;
 	mHUD = new HUD(*mGraphicsSystem);
 	mSoundManager = new SoundManager(mMaxSamples);
+	mMenuManager = new MenuManager(*mGraphicsSystem);
+	mGridManager = new GridManager(9, 3, 3); // basic variables
 }
 
 // End game
 Game::~Game()
 {
+	save();
 	cleanup();
+}
+
+// Create a save file and load important variables
+void Game::save()
+{
+
+}
+
+// Load saved variables
+void Game::loadSave()
+{
+
 }
 
 // Initialize game variables from file
@@ -103,11 +118,15 @@ void Game::init()
 	mSoundManager->loadSample(mChangeSpriteIndex, ASSET_PATH + SOUND_ASSET_PATH + mChangeSpriteSound);
 	mSoundManager->loadSample(mSpawnIndex, ASSET_PATH + SOUND_ASSET_PATH + mSpawnSound);
 	mIsInitted = true;
+
+	// TO DO: init graphics buffers here
 }
 
 // Delete game systems in opposite order of creation
 void Game::cleanup()
 {
+	delete mGridManager;
+	delete mMenuManager;
 	delete mSoundManager;
 	delete mHUD;
 	delete mInputTranslator;
@@ -149,7 +168,7 @@ void Game::doLoop()
 
 	int secondsPassed = 100;
 	bool happened = false;
-
+/*
 	while (mIsLooping)
 	{
 		// Start loop timer
@@ -157,140 +176,32 @@ void Game::doLoop()
 		pPerformanceTracker->startTracking("loop");
 		Timer timer;
 		timer.start();
-
-		// TO DO: make function to load UI screens
-		// loads start screen
-		while (!mHasStarted)
-		{
-			timer.pause(true);
-			Timer start;
-			start.start();
-
-			loadScreen(targetTime);
-			mHUD->welcomeScreen();
-
-			mGraphicsSystem->flip();
-
-			// Makes sure in-game timer stays accurate when game first starts
-			start.sleepUntilElapsed(targetTime);
-			mTimePaused += start.getElapsedTime();
-			mTimeElapsed += start.getElapsedTime();
-			timer.start();
-		}
-
-		// loads pause screen
-		while (mHasPaused)
-		{
-			timer.pause(true);
-			Timer paused;
-			paused.start();
-
-			loadScreen(targetTime);
-			mHUD->pauseScreen();
-
-			mGraphicsSystem->flip();
-
-			// Makes sure in-game timer stays accurate when game is paused
-			paused.sleepUntilElapsed(targetTime);
-			mTimePaused += paused.getElapsedTime();
-			mTimeElapsed += paused.getElapsedTime();
-			timer.start();
-		}
-
-		// Loads game over screen
-		if (mPoints <= 0)
-		{
-			while (mIsLooping)
-			{
-				loadScreen(targetTime);
-				mHUD->gameOver();
-
-				mGraphicsSystem->flip();
-			}
-		}
-
-		// Loads game screen
-		loadScreen(targetTime);
 		
-		// Creates a sphere on a random chance every frame
-		int random = rand() % mRandomChance + 1;
-		if (random == 1)
+		if (!mMenuManager->getIsMenuOpen())
 		{
-			createRandomUnit();
+			//If a menu is not open draw what is needed for the game
+			mInputSystem->updateEvents();
+			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(0), 1.0);
+
+			mHUD->update(mPoints, mSavedTime);
+			mGraphicsSystem->flip();
 		}
 
-		mHUD->fps((frames / deltaTime) * 1000);
-		mGraphicsSystem->flip();
-
-		// Increases variables if a certain number of seconds has passed
-		if (secondsPassed % mSecondsUntilIncrease == 0 && !happened)
+		if (mMenuManager->getIsMenuOpen())
 		{
-			mMinSpeed += mSpeedIncreaseRate;
-			mMaxSpeed += mSpeedIncreaseRate;
-			mSpawnRadius += mSpawnIncreaseRate;
-			mRandomChance -= mRandomChanceIncreaseRate;
-			happened = true;
+			//If a menu is open do not draw game but draw what is needed for the menu
+			mHUD->pauseTimer();
+			mInputSystem->updateEvents();
+			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(0), 1.0);
+			mMenuManager->draw();
 
-			if (mMaxSpeed > mMaxSpeedCap)
-			{
-				mMaxSpeed = mMaxSpeedCap;
-			}
-			if (mMinSpeed > mMinSpeedCap)
-			{
-				mMinSpeed = mMinSpeedCap;
-			}
-			if (mSpawnRadius > mSpawnRadiusCap)
-			{
-				mSpawnRadius = mSpawnRadiusCap;
-			}
-			if (mRandomChance < mRandomChanceCap)
-			{
-				mRandomChance = mRandomChanceCap;
-			}
+			mGraphicsSystem->flip();
 		}
 
 		timer.sleepUntilElapsed(targetTime);
 		pPerformanceTracker->stopTracking("loop");
-
-		mTimeElapsed += timer.getElapsedTime();
-
-		// Makes sure data driven variables increase only once a second
-		if ((int)mTimeElapsed / 1000 > secondsPassed) 
-		{
-			happened = false;
-		}
-		secondsPassed = mTimeElapsed / 1000;
-
-		// Calculate frames and deltatime
-		frames++;
-		deltaTime += timer.getElapsedTime();
-		if (frames == frameRate)
-		{
-			frames = 0;
-			deltaTime = 0;
-		}
-	}
+	}*/
 	delete pPerformanceTracker;
-}
-
-// Loads and updates the current state of the game
-void Game::loadScreen(double targetTime)
-{
-	mInputSystem->updateEvents();
-	mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(0), 1.0);
-
-	if (mHasPaused || mPoints <= 0)
-	{
-		mUnitManager->drawInvisible(*mGraphicsSystem);
-	}
-	else 
-	{
-		mUnitManager->update(targetTime);
-		mUnitManager->draw(*mGraphicsSystem);
-	}
-
-	mHUD->score(mPoints);
-	mHUD->timer((mTimeElapsed - mTimePaused) / 1000);
 }
 
 // Recieves and applies events

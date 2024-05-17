@@ -35,6 +35,8 @@ public:
 
 	void setBitmapToColor(GraphicsBuffer& bitmap, Color& color);
 
+	// By Nate
+	void drawButtons(int amount, float spacing, float size, float x1, float y1, Color& color);
 private:
 	ALLEGRO_DISPLAY* mDisplay;
 };
