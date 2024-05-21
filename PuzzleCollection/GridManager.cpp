@@ -33,15 +33,30 @@ void GridManager::initGrid()
     }
 }
 
+/*
+(0,8) (1,8) (2,8) | (3,8) (4,8) (5,8) | (6,8) (7,8) (8,8)
+(0,7) (1,7) (2,7) | (3,7) (4,7) (5,7) | (6,7) (7,7) (8,7)
+(0,6) (1,6) (2,6) | (3,6) (4,6) (5,6) | (6,6) (7,6) (8,6)
+---------------------------------------------------------
+(0,5) (1,5) (2,5) | (3,5) (4,5) (5,5) | (6,5) (7,5) (8,5)
+(0,4) (1,4) (2,4) | (3,4) (4,4) (5,4) | (6,4) (7,4) (8,4)
+(0,3) (1,3) (2,3) | (3,3) (4,3) (5,3) | (6,3) (7,3) (8,3)
+---------------------------------------------------------
+(0,2) (1,2) (2,2) | (3,2) (4,2) (5,2) | (6,2) (7,2) (8,2)
+(0,1) (1,1) (2,1) | (3,1) (4,1) (5,1) | (6,1) (7,1) (8,1)
+(0,0) (1,0) (2,0) | (3,0) (4,0) (5,0) | (6,0) (7,0) (8,0)
+*/
+
 // Currently for Sudoku
+// Doesn't work yet, can't completely randomize a sudoku problem as the computer will get stuck eventually
 void GridManager::fillGrid()
 {          
-    
     srand(time(NULL));
     for (int y = 0; y < mSize; y++)
     {
         for (int x = 0; x < mSize; x++)
         {
+            //printGrid();
             int temp = 1;
             std::vector<int> numAvailable = nums;
             // Check columns for repeating numbers
@@ -72,26 +87,31 @@ void GridManager::fillGrid()
                 }
                 temp++;
             }
-
             // Checks subsquare for repeats
-            // Doesn't quite work yet, need to make sure to check the entire rows beneath the current coord
-            std::cout << "pair: " << x << " " << y << std::endl;
-            for (int i = y % mSubSquareY; i >= 0; i--) // finds which row in subsquare y is at and goes down until it hits next subsquare/end
+            for (int j = x % mSubSquareX; j >= 0; j--) // finds which column in subsquare x is at and goes left until it hits next subsquare/end for row y
             {
-                for (int j = x % mSubSquareX; j >= 0; j--) // finds which column in subsquare x is at and goes left until it hits next subsquare/end
-                {
-                    std::cout << "(" << x - j << " " << y - i << ") ";
+                // Remove the element using erase function and iterators 
+                auto it = std::find(numAvailable.begin(), numAvailable.end(),
+                    grid[x - j][y]);
 
+                // If element is found found, erase it 
+                if (it != numAvailable.end()) {
+                    numAvailable.erase(it);
+                }
+            }
+            for (int i = y % mSubSquareY; i > 0; i--) // starts at the beginning row of the current subsquare and goes up to the current row
+            {
+                for (int j = x - (x % mSubSquareX); j <= (x - (x % mSubSquareX)) + (mSubSquareX - 1); j++) // go through each column in the rows beneath the current row
+                {
                     // Remove the element using erase function and iterators 
                     auto it = std::find(numAvailable.begin(), numAvailable.end(),
-                        grid[x - j][y - i]);
-                         
+                        grid[j][y - i]);
+
                     // If element is found found, erase it 
                     if (it != numAvailable.end()) {
                         numAvailable.erase(it);
                     }
                 }
-                std::cout << std::endl;
             }
             if(numAvailable.size() != 0)
                 grid[x][y] = numAvailable[rand() % numAvailable.size()];
@@ -105,7 +125,7 @@ void GridManager::printGrid()
     {
         for (int j = 0; j < mSize; j++)
         {
-            std::cout << grid[i][j] << " ";
+            std::cout << grid[j][i] << " ";
             if (j % mSubSquareX == mSubSquareX - 1)
             {
                 std::cout << "|";
@@ -117,4 +137,6 @@ void GridManager::printGrid()
             std::cout << "----------------------------------" << std::endl;
         }
     }
+
+    std::cout << "\n\n";
 }
