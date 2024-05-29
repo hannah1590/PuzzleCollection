@@ -1,4 +1,27 @@
 #include "GridManager.h";
+void GridManager::checkGrid()
+{
+    for (int y = 0; y < mSize; y++)
+    {
+        int sum = 0;
+        for (int x = 0; x < mSize; x++)
+        {
+            sum += grid[y][x];
+        }
+        cout << "Row sum: " << sum << endl;
+    }
+
+    for (int x = 0; x < mSize; x++)
+    {
+        int sum = 0;
+        for (int y = 0; y < mSize; y++)
+        {
+            sum += grid[y][x];
+        }
+        cout << "Col sum: " << sum << endl;
+    }
+}
+
 GridManager::GridManager(int size, int boxX, int boxY)
 {
     srand(time(NULL));
@@ -9,6 +32,7 @@ GridManager::GridManager(int size, int boxX, int boxY)
 
     initGrid();
     fillGrid();
+    checkGrid();
     printGrid();
 }
 
@@ -102,71 +126,108 @@ void GridManager::fillGrid()
                     int i = x - 1;
                     do {
                         vector<int> temp = checkColumn(i, y); // Gets all available options for column (i,y)
-                        // Checks if the rowOption can be easily swapped to a different column
-                        auto it = find(temp.begin(), temp.end(), rowOptions[0]);
-                        if (it != temp.end())
-                        {
-                            grid[y][x] = grid[y][i];
-                            grid[y][i] = rowOptions[0];
-                            loop = false;
-                        }
+                        vector<int> temp1 = checkBox(i, y); // Gets all available options for box (i,y)
+                        temp = combineVectors(temp, temp1);
+                        loop = switchNumbers(temp, rowOptions, combineVectors(colOptions, boxOptions), x, y, i, y);
                         i--;
                     } while (loop && i >= 0);
                 }
-                else if (colOptions.size() == 1)
+                else if (colOptions.size() == 1) // might be useless since the rows are completely filled so won't find available num
                 {
                     bool loop = true;
                     int i = y - 1;
                     do {
                         vector<int> temp = checkRow(x, i); // Gets all available options for row (x,i)
-                        // Checks if the colOption can be easily swapped to a different row
-                        auto it = find(temp.begin(), temp.end(), colOptions[0]);
-                        if (it != temp.end())
-                        {
-                            grid[y][x] = grid[i][x];
-                            grid[i][x] = colOptions[0];
-                            loop = false;
-                        }
+                        vector<int> temp1 = checkBox(x, i); // Gets all available options for box (x,i)
+                        temp = combineVectors(temp, temp1);
+                        loop = switchNumbers(temp, colOptions, combineVectors(rowOptions, boxOptions), x, y, x, i);
                         i--;
                     } while (loop && i >= 0);
                 }
-                else if (boxOptions.size() == 1)
-                {
+                else
+                { 
+                    //if(boxOptions.size() != 0)
+                    grid[y][x] = boxOptions[rand() % boxOptions.size()];
+                    for (int i = y - 1; i >= 0; i--)
+                    {
+                        if (grid[i][x] == grid[y][x])
+                        {
+                            reshuffleBox(x, i);
+                        }
+                    }
+                    
+                   /*
+                    // Checks if last option can be swapped with another number in the column
                     bool loop = true;
                     int i = x - 1;
                     do {
                         vector<int> temp = checkColumn(i, y); // Gets all available options for column (i,y)
-                        // Checks if the rowOption can be easily swapped to a different column
-                        auto it = find(temp.begin(), temp.end(), boxOptions[0]);
-                        if (it != temp.end())
-                        {
-                            grid[y][x] = grid[y][i];
-                            grid[y][i] = boxOptions[0];
-                            loop = false;
-                        }
+                        vector<int> temp1 = checkRow(i, y); // Gets all available options for box (x,i)
+                        temp = combineVectors(temp, temp1);
+                        loop = switchNumbers(temp, boxOptions, combineVectors(colOptions, rowOptions), x, y, i, y);
                         i--;
                     } while (loop && i >= 0);
+
+                    // If can't be swapped in the column, check if it can be swapped in the row
                     i = y - 1;
                     while (loop && i >= 0) {
                         vector<int> temp = checkRow(x, i); // Gets all available options for row (x,i)
-                        // Checks if the colOption can be easily swapped to a different row
-                        auto it = find(temp.begin(), temp.end(), boxOptions[0]);
-                        if (it != temp.end())
-                        {
-                            grid[y][x] = grid[i][x];
-                            grid[i][x] = boxOptions[0];
-                            loop = false;
-                        }
+                        vector<int> temp1 = checkColumn(x, i); // Gets all available options for box (x,i)
+                        temp = combineVectors(temp, temp1);
+                        loop = switchNumbers(temp, boxOptions, combineVectors(colOptions, rowOptions), x, y, x, i);
                         i--;
                     } 
+                    */
                 }
             }
             else
             {
+                // If there are plenty of options, randomly choose from the ones available
                 grid[y][x] = combinedOptions[rand() % combinedOptions.size()];
             }
         }
     }
+}
+
+void GridManager::reshuffleBox(int x, int y)
+{
+    vector<int> rowOptions;
+    vector<int> colOptions;
+    vector<int> boxOptions;
+    vector<int> combinedOptions;
+
+    for (int i = y - (y % mBoxSizeY); i <= (y - (y % mBoxSizeY)) + (mBoxSizeY - 1); i++)
+    {
+        for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++)
+        {
+            rowOptions = checkRow(mSize, i);
+            colOptions = checkColumn(j, mSize);
+            boxOptions = checkBox(j, i);
+
+            combinedOptions = combineVectors(rowOptions, colOptions);
+            combinedOptions = combineVectors(combinedOptions, boxOptions);
+
+            if (combinedOptions.size() != 0)
+                grid[i][j] = combinedOptions[rand() % combinedOptions.size()];
+        }
+    }
+}
+
+// Checks throughout the available options of a specific row/column/box and sees if it can be switched to an earlier position
+bool GridManager::switchNumbers(vector<int> holder, vector<int> options, vector<int> ogAvail, int x, int y, int a, int b)
+{
+    for (auto& i : options)
+    {
+        auto it = find(holder.begin(), holder.end(), i);
+        auto it2 = find(ogAvail.begin(), ogAvail.end(), grid[b][a]);
+        if (it != holder.end() && it2 != ogAvail.end())
+        {
+            grid[y][x] = grid[b][a];
+            grid[b][a] = i;
+            return false;
+        }
+    }
+    return true;
 }
 
 vector<int> GridManager::combineVectors(vector<int> a, vector<int> b)

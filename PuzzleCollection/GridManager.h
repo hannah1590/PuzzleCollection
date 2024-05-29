@@ -21,6 +21,9 @@ public:
 	vector<int> checkBox(int x, int y);
 
 	vector<int> combineVectors(vector<int> a, vector<int> b);
+	bool switchNumbers(vector<int> holder, vector<int> options, vector<int> ogAvail, int x, int y, int a, int b);
+	void checkGrid();
+	void reshuffleBox(int x, int y);
 private:
 	int mSize, mBoxSizeX, mBoxSizeY; // column and row size is always equal while the box sizes can be different but must multiply together to equal size
 	vector<int> nums;
