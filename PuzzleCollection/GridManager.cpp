@@ -1,27 +1,4 @@
 #include "GridManager.h";
-void GridManager::checkGrid()
-{
-    for (int y = 0; y < mSize; y++)
-    {
-        int sum = 0;
-        for (int x = 0; x < mSize; x++)
-        {
-            sum += grid[y][x];
-        }
-        cout << "Row sum: " << sum << endl;
-    }
-
-    for (int x = 0; x < mSize; x++)
-    {
-        int sum = 0;
-        for (int y = 0; y < mSize; y++)
-        {
-            sum += grid[y][x];
-        }
-        cout << "Col sum: " << sum << endl;
-    }
-}
-
 GridManager::GridManager(int size, int boxX, int boxY)
 {
     srand(time(NULL));
@@ -32,7 +9,6 @@ GridManager::GridManager(int size, int boxX, int boxY)
 
     initGrid();
     fillGrid();
-    checkGrid();
     printGrid();
 }
 
@@ -44,67 +20,25 @@ void GridManager::initGrid()
 {
     for (int i = 0; i < mSize; i++)
     {
-        nums.push_back(i + 1); // Fills the nums vector with all available number options
+        mNums.push_back(i + 1); // Fills the nums vector with all available number options
         vector<int> temp;
         for (int j = 0; j < mSize; j++)
         {
             temp.push_back(0);
         }
-        grid.push_back(temp);
+        mGrid.push_back(temp);
     }
 }
-
-// Works half the time, but will often throw a stack overflow error; figure out a way to optimize it with less brute force and more reliabillity
-void GridManager::fillLine(int start, int end, int row)
-{
-    for (int i = start; i <= end; i++)
-    {
-        grid[i][row] = getAvailableNum(i, row);
-        if (grid[i][row] == 0 && i != 0)
-            fillLine(0, i, row);
-        else if (grid[i][row] == 0 && i == 0)
-        {
-            fillLine(0, mSize - 1, row - 1);
-            fillLine(0, i, row);
-        }
-    }
-}
-
-/*
-(0,8) (1,8) (2,8) | (3,8) (4,8) (5,8) | (6,8) (7,8) (8,8)
-(0,7) (1,7) (2,7) | (3,7) (4,7) (5,7) | (6,7) (7,7) (8,7)
-(0,6) (1,6) (2,6) | (3,6) (4,6) (5,6) | (6,6) (7,6) (8,6)
----------------------------------------------------------
-(0,5) (1,5) (2,5) | (3,5) (4,5) (5,5) | (6,5) (7,5) (8,5)
-(0,4) (1,4) (2,4) | (3,4) (4,4) (5,4) | (6,4) (7,4) (8,4)
-(0,3) (1,3) (2,3) | (3,3) (4,3) (5,3) | (6,3) (7,3) (8,3)
----------------------------------------------------------
-(0,2) (1,2) (2,2) | (3,2) (4,2) (5,2) | (6,2) (7,2) (8,2)
-(0,1) (1,1) (2,1) | (3,1) (4,1) (5,1) | (6,1) (7,1) (8,1)
-(0,0) (1,0) (2,0) | (3,0) (4,0) (5,0) | (6,0) (7,0) (8,0)
-
-(0,5) (1,5) (2,5) | (3,5) (4,5) (5,5) 
-(0,4) (1,4) (2,4) | (3,4) (4,4) (5,4) 
--------------------------------------
-(0,3) (1,3) (2,3) | (3,3) (4,3) (5,3)
-(0,2) (1,2) (2,2) | (3,2) (4,2) (5,2)
--------------------------------------
-(0,1) (1,1) (2,1) | (3,1) (4,1) (5,1)
-(0,0) (1,0) (2,0) | (3,0) (4,0) (5,0)
-
-
-vectors fill from top to bottom then left to right
-2D Vector = [y][x]
-*/
 
 // Currently for Sudoku
-// Doesn't work yet, can't completely randomize a sudoku problem as the computer will get stuck eventually
+// 2D Vector = [y][x]
 void GridManager::fillGrid()
 {
     vector<int> rowOptions;
     vector<int> colOptions;
     vector<int> boxOptions;
     vector<int> combinedOptions;
+    stack<Vector2D> toCheck;
 
     for (int y = 0; y < mSize; y++)
     {
@@ -132,85 +66,116 @@ void GridManager::fillGrid()
                         i--;
                     } while (loop && i >= 0);
                 }
-                else if (colOptions.size() == 1) // might be useless since the rows are completely filled so won't find available num
-                {
-                    bool loop = true;
-                    int i = y - 1;
-                    do {
-                        vector<int> temp = checkRow(x, i); // Gets all available options for row (x,i)
-                        vector<int> temp1 = checkBox(x, i); // Gets all available options for box (x,i)
-                        temp = combineVectors(temp, temp1);
-                        loop = switchNumbers(temp, colOptions, combineVectors(rowOptions, boxOptions), x, y, x, i);
-                        i--;
-                    } while (loop && i >= 0);
-                }
-                else
-                { 
-                    //if(boxOptions.size() != 0)
-                    grid[y][x] = boxOptions[rand() % boxOptions.size()];
-                    for (int i = y - 1; i >= 0; i--)
-                    {
-                        if (grid[i][x] == grid[y][x])
-                        {
-                            reshuffleBox(x, i);
-                        }
-                    }
-                    
-                   /*
-                    // Checks if last option can be swapped with another number in the column
-                    bool loop = true;
-                    int i = x - 1;
-                    do {
-                        vector<int> temp = checkColumn(i, y); // Gets all available options for column (i,y)
-                        vector<int> temp1 = checkRow(i, y); // Gets all available options for box (x,i)
-                        temp = combineVectors(temp, temp1);
-                        loop = switchNumbers(temp, boxOptions, combineVectors(colOptions, rowOptions), x, y, i, y);
-                        i--;
-                    } while (loop && i >= 0);
-
-                    // If can't be swapped in the column, check if it can be swapped in the row
-                    i = y - 1;
-                    while (loop && i >= 0) {
-                        vector<int> temp = checkRow(x, i); // Gets all available options for row (x,i)
-                        vector<int> temp1 = checkColumn(x, i); // Gets all available options for box (x,i)
-                        temp = combineVectors(temp, temp1);
-                        loop = switchNumbers(temp, boxOptions, combineVectors(colOptions, rowOptions), x, y, x, i);
-                        i--;
-                    } 
-                    */
-                }
             }
             else
             {
                 // If there are plenty of options, randomly choose from the ones available
-                grid[y][x] = combinedOptions[rand() % combinedOptions.size()];
+                mGrid[y][x] = combinedOptions[rand() % combinedOptions.size()];
+            }
+            
+            // Makes a stack of positions that still end up zero as they can't be swapped while the grid is being made
+            if (mGrid[y][x] == 0)
+            {
+                toCheck.push(Vector2D(x, y));
             }
         }
     }
+    
+    int count = 0;
+    // Goes through every pos that needs to be adjusted
+    while (!toCheck.empty() && count < 100)
+    {
+        Vector2D current = toCheck.top();
+        toCheck.pop();
+
+        // Checks if the number is a 0
+        if (mGrid[current.getY()][current.getX()] == 0)
+        {
+            // Checks which number is missing in the box and puts it in the empty space
+            boxOptions = checkBox(current.getX(), current.getY());
+            mGrid[current.getY()][current.getX()] = boxOptions[0];
+        }
+
+        // Checks the entire row and column to find if it repeats
+        rowOptions = checkRow(mSize, current.getY());
+        colOptions = checkColumn(current.getX(), mSize);
+
+        if (rowOptions.size() != 0)
+        {
+            for (int i = 0; i < mSize; i++)
+            {
+                // Finds the current pos of the repeated number
+                if (mGrid[current.getY()][i] == mGrid[current.getY()][current.getX()] && i != current.getX())
+                {
+                    // Finds the position in the box of the number missing from the row 
+                    Vector2D newPos = findNumInBox(i, current.getY(), rowOptions[0]);
+                    mGrid[newPos.getY()][newPos.getX()] = mGrid[current.getY()][i];
+                    mGrid[current.getY()][i] = rowOptions[0];
+
+                    // Adds the positions of numbers just swapped to the stack
+                    toCheck.push(Vector2D((float)i, current.getY()));
+                    toCheck.push(newPos);
+                    break;
+                }
+            }
+        }
+        if (colOptions.size() != 0)
+        {
+            for (int i = 0; i < mSize; i++)
+            {
+                // Finds the current pos of the repeated number
+                if (mGrid[i][current.getX()] == mGrid[current.getY()][current.getX()] && i != current.getY())
+                {
+                    // Finds the position in the box of the number missing from the column
+                    Vector2D newPos = findNumInBox(current.getX(), i, colOptions[0]);
+                    mGrid[newPos.getY()][newPos.getX()] = mGrid[i][current.getX()];
+                    mGrid[i][current.getX()] = colOptions[0];
+
+                    // Adds the positions of numbers just swapped to the stack
+                    toCheck.push(Vector2D(current.getX(), (float)i));
+                    toCheck.push(newPos);
+                    break;
+                }
+            }
+        }
+        count++;
+    }
+    
+    // Need to fix it so I don't need to completely redo if it ends in an endless loop as this is very unefficient
+    if (count == 100)
+    {
+        cout << "redo" << endl;
+        for (int i = 0; i < mSize; i++)
+        {
+            for (int j = 0; j < mSize; j++)
+            {
+                mGrid[i][j] = 0;
+            }
+        }
+        fillGrid();
+    }
 }
 
-void GridManager::reshuffleBox(int x, int y)
+Vector2D GridManager::findNumInBox(int x, int y, int num)
 {
-    vector<int> rowOptions;
-    vector<int> colOptions;
-    vector<int> boxOptions;
-    vector<int> combinedOptions;
-
-    for (int i = y - (y % mBoxSizeY); i <= (y - (y % mBoxSizeY)) + (mBoxSizeY - 1); i++)
+    Vector2D zero;
+    for (int i = y - (y % mBoxSizeY); i <= (y - (y % mBoxSizeY)) + (mBoxSizeY - 1); i++) // Starts at the beginning row of the current box and goes up to the current row
     {
-        for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++)
+        for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++) // Go through each column in the rows beneath the current row
         {
-            rowOptions = checkRow(mSize, i);
-            colOptions = checkColumn(j, mSize);
-            boxOptions = checkBox(j, i);
-
-            combinedOptions = combineVectors(rowOptions, colOptions);
-            combinedOptions = combineVectors(combinedOptions, boxOptions);
-
-            if (combinedOptions.size() != 0)
-                grid[i][j] = combinedOptions[rand() % combinedOptions.size()];
+            // Finds pos of number
+            if (mGrid[i][j] == num && Vector2D(j, i) != Vector2D(x, y))
+            {
+                return Vector2D(j, i);
+            }
+            else if (mGrid[i][j] == 0)
+            {
+                zero = Vector2D(j, i);
+            }
         }
     }
+    // If the number isn't in the box but there is a zero, returns the pos of the zero
+    return zero;
 }
 
 // Checks throughout the available options of a specific row/column/box and sees if it can be switched to an earlier position
@@ -219,11 +184,11 @@ bool GridManager::switchNumbers(vector<int> holder, vector<int> options, vector<
     for (auto& i : options)
     {
         auto it = find(holder.begin(), holder.end(), i);
-        auto it2 = find(ogAvail.begin(), ogAvail.end(), grid[b][a]);
+        auto it2 = find(ogAvail.begin(), ogAvail.end(), mGrid[b][a]);
         if (it != holder.end() && it2 != ogAvail.end())
         {
-            grid[y][x] = grid[b][a];
-            grid[b][a] = i;
+            mGrid[y][x] = mGrid[b][a];
+            mGrid[b][a] = i;
             return false;
         }
     }
@@ -248,15 +213,14 @@ vector<int> GridManager::combineVectors(vector<int> a, vector<int> b)
 
 vector<int> GridManager::checkColumn(int x, int y)
 {
-    vector<int> numAvailable = nums;
+    vector<int> numAvailable = mNums;
 
     // Check columns for repeating numbers
     int temp = 1;
     while (y - temp >= 0)
     {
         // Finds location of the number
-        auto it = find(numAvailable.begin(), numAvailable.end(),
-            grid[y - temp][x]);
+        auto it = find(numAvailable.begin(), numAvailable.end(), mGrid[y - temp][x]);
 
         // Remove number from available
         if (it != numAvailable.end()) {
@@ -269,15 +233,14 @@ vector<int> GridManager::checkColumn(int x, int y)
 
 vector<int> GridManager::checkRow(int x, int y)
 {
-    vector<int> numAvailable = nums;
+    vector<int> numAvailable = mNums;
 
     // Check rows for repeating numbers
     int temp = 1;
     while (x - temp >= 0)
     {
         // Finds location of the number
-        auto it = find(numAvailable.begin(), numAvailable.end(),
-            grid[y][x - temp]);
+        auto it = find(numAvailable.begin(), numAvailable.end(), mGrid[y][x - temp]);
 
         // Remove number from available
         if (it != numAvailable.end()) {
@@ -290,14 +253,13 @@ vector<int> GridManager::checkRow(int x, int y)
 
 vector<int> GridManager::checkBox(int x, int y)
 {
-    vector<int> numAvailable = nums;
+    vector<int> numAvailable = mNums;
     for (int i = y - (y % mBoxSizeY); i <= (y - (y % mBoxSizeY)) + (mBoxSizeY - 1); i++) // Starts at the beginning row of the current box and goes up to the current row
     {
         for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++) // Go through each column in the rows beneath the current row
         {
             // Finds location of the number
-            auto it = find(numAvailable.begin(), numAvailable.end(),
-                grid[i][j]);
+            auto it = find(numAvailable.begin(), numAvailable.end(), mGrid[i][j]);
 
             // Remove number from available
             if (it != numAvailable.end()) {
@@ -314,7 +276,7 @@ void GridManager::printGrid()
     {
         for (int j = 0; j < mSize; j++)
         {
-            cout << grid[i][j] << " ";
+            cout << mGrid[i][j] << " ";
             if (j % mBoxSizeX == mBoxSizeX - 1)
             {
                 cout << "|";
@@ -328,73 +290,4 @@ void GridManager::printGrid()
     }
 
     cout << "\n\n";
-}
-
-
-// Gets a randomly generated number that doesn't yet appear in the row/column/box; if one cannot be found returns 0
-int GridManager::getAvailableNum(int x, int y)
-{
-    vector<int> numAvailable = nums;
-
-    // Check rows for repeating numbers
-    int temp = 1;
-    while (y - temp >= 0)
-    {
-        // Finds location of the number
-        auto it = find(numAvailable.begin(), numAvailable.end(),
-            grid[x][y - temp]);
-
-        // Remove number from available
-        if (it != numAvailable.end()) {
-            numAvailable.erase(it);
-        }
-        temp++;
-    }
-
-
-    // Check columns for repeating numbers
-    temp = 1;
-    while (x - temp >= 0)
-    {
-        // Finds location of the number
-        auto it = find(numAvailable.begin(), numAvailable.end(),
-            grid[x - temp][y]);
-
-        // Remove number from available
-        if (it != numAvailable.end()) {
-            numAvailable.erase(it);
-        }
-        temp++;
-    }
-
-    // Checks box for repeats
-    for (int j = x % mBoxSizeX; j >= 0; j--) // Finds which column in box x is at and goes left until it hits next box/end for row y
-    {
-        // Finds location of the number
-        auto it = find(numAvailable.begin(), numAvailable.end(),
-            grid[x - j][y]);
-
-        // Remove number from available
-        if (it != numAvailable.end()) {
-            numAvailable.erase(it);
-        }
-    }
-    for (int i = y % mBoxSizeY; i > 0; i--) // Starts at the beginning row of the current box and goes up to the current row
-    {
-        for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++) // Go through each column in the rows beneath the current row
-        {
-            // Finds location of the number
-            auto it = find(numAvailable.begin(), numAvailable.end(),
-                grid[j][y - i]);
-
-            // Remove number from available
-            if (it != numAvailable.end()) {
-                numAvailable.erase(it);
-            }
-        }
-    }
-    if (numAvailable.size() != 0)
-        return numAvailable[rand() % numAvailable.size()];
-    else
-        return 0;
 }

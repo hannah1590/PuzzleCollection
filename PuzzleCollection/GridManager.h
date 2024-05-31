@@ -1,5 +1,7 @@
 #include "Trackable.h"
+#include "Vector2D.h"
 #include <vector>
+#include <stack>
 #include <random>
 
 using namespace std;
@@ -13,8 +15,6 @@ public:
 	void initGrid();
 	void fillGrid();
 	void printGrid();
-	void fillLine(int start, int end, int row);
-	int getAvailableNum(int x, int y);
 
 	vector<int> checkRow(int x, int y);
 	vector<int> checkColumn(int x, int y);
@@ -22,10 +22,9 @@ public:
 
 	vector<int> combineVectors(vector<int> a, vector<int> b);
 	bool switchNumbers(vector<int> holder, vector<int> options, vector<int> ogAvail, int x, int y, int a, int b);
-	void checkGrid();
-	void reshuffleBox(int x, int y);
+	Vector2D findNumInBox(int x, int y, int num);
 private:
-	int mSize, mBoxSizeX, mBoxSizeY; // column and row size is always equal while the box sizes can be different but must multiply together to equal size
-	vector<int> nums;
-	vector<vector<int>> grid;
+	int mSize, mBoxSizeX, mBoxSizeY; // Column and row size is always equal while the box sizes can be different but must multiply together to equal size
+	vector<int> mNums;
+	vector<vector<int>> mGrid; // [y][x]
 };
