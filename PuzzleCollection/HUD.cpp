@@ -3,8 +3,8 @@
 HUD::HUD(GraphicsSystem& graphicsSystem)
 {
 	mGraphicsSystem = &graphicsSystem;
-	mScoreText = "Score";
-	mTimeText = "Time";
+	//mScoreText = "Score";
+	//mTimeText = "Time";
 }
 
 HUD::~HUD()
@@ -49,4 +49,21 @@ void HUD::reset()
 	mTimer.stop();
 	mTimer.start();
 	mTimer.pause(true);
+}
+
+void HUD::loadData(string& filename)
+{
+	ifstream data(filename);
+	string currentString;
+
+	while (!data.eof())
+	{
+		data >> currentString;
+		if (currentString == "HUD")
+		{
+			data >>
+				mScoreText >>
+				mTimeText;
+		}
+	}
 }

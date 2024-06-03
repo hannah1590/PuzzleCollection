@@ -1,14 +1,13 @@
 #pragma once
 #include "GraphicsSystem.h"
-#include "InputSystem.h"
-#include "Unit.h"
-#include "UnitManager.h"
 #include "GraphicsBufferManager.h"
-#include "GameEvent.h"
+#include "InputSystem.h"
 #include "InputTranslator.h"
-#include "HUD.h"
+#include "GameEvent.h"
 #include "SoundManager.h"
 #include "MenuManager.h"
+#include "HUD.h"
+#include "UnitManager.h"
 #include "GridManager.h"
 #include <EventListener.h>
 
@@ -43,7 +42,6 @@ public:
 	void getSounds();
 
 	void doLoop();
-	void loadScreen(double targetTime);
 	void handleEvent(const Event& theEvent);
 
 	InputSystem* getInputSystem() { return mInputSystem; }
@@ -108,6 +106,7 @@ private:
 	const string GLOW_BALLS_FILENAME = "glowing-balls.png";
 
 	const string SOUND_ASSET_PATH = "minetrap\\";
+	const string MENU_TEXT_LOCATION = "MenuData.txt";
 
 	// Found in SoundEffectFileNames.txt
 	string mDeathSound;

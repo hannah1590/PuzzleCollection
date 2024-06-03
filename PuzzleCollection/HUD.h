@@ -1,5 +1,7 @@
 #pragma once
 #include "GraphicsSystem.h"
+#include <iostream>
+#include <fstream>
 #include "Font.h"
 #include "Color.h"
 #include "Timer.h"
@@ -15,6 +17,7 @@ public:
 	void update(int score, float savedTime);
 	void pauseTimer();
 	void reset();
+	void loadData(string& filename);
 
 	float getTime() { return mTime; }
 private:

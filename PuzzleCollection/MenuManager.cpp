@@ -1,4 +1,6 @@
 #include "MenuManager.h"
+#include <EventSystem.h>
+#include "GameEvent.h"
 
 MenuManager::MenuManager(GraphicsSystem& graphicsSystem)
 {
@@ -75,8 +77,8 @@ void MenuManager::draw()
 			string text1 = mTextMap["Menu3_1"];
 			string text2 = mTextMap["Menu3_2"]; //DIFFICULTY
 			string text3 = mTextMap["Menu3_3"]; //SOUND
-			string text4 = mTextMap["Menu3_4"]; //LANGUAGE
-			string text5 = mTextMap["Menu3_5"]; //BACK
+			string text4 = "In progress";
+			string text5 = mTextMap["Menu3_4"]; //BACK
 
 			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1);
 			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + textBuffer), font, white, text2);
@@ -136,7 +138,6 @@ void MenuManager::toggleMenu()
 	}
 }
 
-/*
 void MenuManager::checkInput(Vector2D loc)
 {
 	EventSystem* pEventSystem = EventSystem::getInstance();
@@ -255,7 +256,7 @@ void MenuManager::checkInput(Vector2D loc)
 		return;
 	}
 }
-*/
+
 void MenuManager::loadData(string& filename)
 {
 	mTextMap.clear();
@@ -315,14 +316,6 @@ void MenuManager::loadData(string& filename)
 	for (int i = 1; i < amount + 1; i++)
 	{
 		string menuKey = "Menu6_" + to_string(i);
-		data >> currentString;
-		mTextMap[menuKey] = currentString;
-	}
-
-	data >> amount;
-	for (int i = 1; i < amount + 1; i++)
-	{
-		string menuKey = "Menu7_" + to_string(i);
 		data >> currentString;
 		mTextMap[menuKey] = currentString;
 	}

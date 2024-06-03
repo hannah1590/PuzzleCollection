@@ -6,8 +6,8 @@ GridManager::GridManager(int size, int boxX, int boxY)
     mBoxSizeY = boxY;
 
     initGrid();
-    fillGrid();
-    printGrid();
+    //fillGrid();
+    //printGrid();
 }
 
 // Clears grid

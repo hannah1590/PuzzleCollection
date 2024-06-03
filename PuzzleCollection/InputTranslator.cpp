@@ -24,36 +24,21 @@ void InputTranslator::handleEvent(const Event& theEvent)
 		if (interfaceEvent.getInputKey() == LEFT_MOUSE)
 		{
 			// Left mouse click progresses game
-			GameEvent gameEvent(SWITCHING_ANIMATIONS_EVENT);
+			GameEvent gameEvent(SCREEN_CLICK_EVENT);
 			gameEvent.setMouseLocation(interfaceEvent.getMouseLocation());
 			pEventSystem->fireEvent(gameEvent);
 		}
 	}
 	else if (theEvent.getType() == KEYBOARD_EVENT)
 	{
-		// Space bar starts game when on the start screen
-		if (interfaceEvent.getInputKey() == SPACE && !mGameStarted)
+		// Space bar starts/pauses game
+		if (interfaceEvent.getInputKey() == SPACE)
 		{
-			mGameStarted = true;
-			GameEvent gameEvent(START_GAME_EVENT);
+			GameEvent gameEvent(START_STOP_EVENT);
 			pEventSystem->fireEvent(gameEvent);
 		}
-		// Space bar resumes game when on the pause screen
-		else if (interfaceEvent.getInputKey() == SPACE && mGameStarted && mGamePaused)
-		{
-			mGamePaused = false;
-			GameEvent gameEvent(RESUMING_GAME_EVENT);
-			pEventSystem->fireEvent(gameEvent);
-		}
-		// Escape key pauses game 
-		if (interfaceEvent.getInputKey() == ESCAPE && !mGamePaused && mGameStarted)
-		{
-			mGamePaused = true;
-			GameEvent gameEvent(PAUSING_GAME_EVENT);
-			pEventSystem->fireEvent(gameEvent);
-		}
-		// Escape key exits game when on the pause screen
-		else if (interfaceEvent.getInputKey() == ESCAPE && mGamePaused && mGameStarted)
+		// Escape key quits game 
+		if (interfaceEvent.getInputKey() == ESCAPE)
 		{
 			GameEvent gameEvent(QUITTING_EVENT);
 			pEventSystem->fireEvent(gameEvent);

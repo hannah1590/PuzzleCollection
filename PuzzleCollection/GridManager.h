@@ -1,5 +1,6 @@
-#include "Trackable.h"
-#include "Vector2D.h"
+#pragma once
+#include <Trackable.h>
+#include <Vector2D.h>
 #include <vector>
 #include <stack>
 #include <random>

@@ -71,9 +71,9 @@ void UnitManager::deleteUnit()
 		{
 			if (!i->getAnimationChange())
 			{
-				EventSystem* pEventSystem = EventSystem::getInstance();
-				GameEvent gameEvent(REMOVING_SCORE_EVENT);
-				pEventSystem->fireEvent(gameEvent);
+				//EventSystem* pEventSystem = EventSystem::getInstance();
+				//GameEvent gameEvent(REMOVING_SCORE_EVENT);
+				//pEventSystem->fireEvent(gameEvent);
 			}
 			freeObject(*i);
 			mUnits.erase(remove(mUnits.begin(), mUnits.end(), i), mUnits.end());
@@ -91,9 +91,9 @@ void UnitManager::changeUnitAnimation(Unit& unit)
 		unit.setAnimation();
 		unit.changeAnimation();
 
-		EventSystem* pEventSystem = EventSystem::getInstance();
-		GameEvent gameEvent(ADDING_SCORE_EVENT);
-		pEventSystem->fireEvent(gameEvent);
+		//EventSystem* pEventSystem = EventSystem::getInstance();
+		//GameEvent gameEvent(ADDING_SCORE_EVENT);
+		//pEventSystem->fireEvent(gameEvent);
 	}
 }
 

@@ -1,0 +1,8 @@
+5 Welcome START LOAD OPTIONS QUIT
+3 Pause,Press Space to Resume,Escape to Exit,
+2 Game Over,Press Escape to Exit,
+4 Options DIFFICULTY SOUND BACK
+5 Difficulty: EASY NORMAL HARD BACK
+4 Sound: ON OFF BACK
+2 You Win!,Press Escape to Exit,
+HUD Score Time

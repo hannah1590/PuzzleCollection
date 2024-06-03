@@ -1,5 +1,6 @@
-#include "Trackable.h"
-#include "Vector2D.h"
+#pragma once
+#include <Trackable.h>
+#include <Vector2D.h>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -23,8 +24,8 @@ public:
 
 	void draw();
 	void toggleMenu();
-	void checkInput(Vector2D loc);
 	void loadData(string& filename);
+	void checkInput(Vector2D loc);
 
 	void setToMain() { mCurrentMenu = 0; }
 	void setToGameOver() { mCurrentMenu = 2; }
@@ -41,7 +42,7 @@ private:
 
 	map<string, string> mTextMap;
 
-	const string ASSET_PATH = "..\\..\\shared\\assets\\";
+	const string ASSET_PATH = "..\\..\\PuzzleCollection\\libraries\\assets\\";
 	const string FONT_FILENAME = "cour.ttf";
 	const int FONT_SIZE = 50;
 	const int FONT_SIZE_SMALL = 25;

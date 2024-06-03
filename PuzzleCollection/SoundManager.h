@@ -2,6 +2,8 @@
 #include "AllegroInclude.h"
 #include <Vector2D.h>
 #include <map>
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 // Controls allegro audio and sound samples

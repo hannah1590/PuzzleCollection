@@ -4,9 +4,6 @@ Game* Game::mspInstance = nullptr;
 
 Game::Game()
 {
-	// For the grid
-	srand(time(NULL));
-
 	getVariables();
 	getSounds();
 
@@ -44,6 +41,8 @@ void Game::loadSave()
 // Initialize game variables from file
 void Game::getVariables()
 {
+	// None of these variables are currently relevent
+	/*
 	ifstream gameVariables(FILE_PATH + GAME_VARIABLES_FILENAME);
 	if (!gameVariables.is_open())
 	{
@@ -57,7 +56,7 @@ void Game::getVariables()
 		mSecondsUntilIncrease >> mSpeedIncreaseRate >>
 		mSpawnIncreaseRate >> mRandomChanceIncreaseRate >> 
 		mPoints >> mPointIncrease >> mPointDecrease;
-	gameVariables.close();
+	gameVariables.close();*/
 }
 
 // Initialize sound wavs from file
@@ -107,13 +106,17 @@ void Game::init()
 
 	// Add game events
 	EventSystem* pEventSystem = EventSystem::getInstance();
-	pEventSystem->addListener((EventType)START_GAME_EVENT, this);
-	pEventSystem->addListener((EventType)PAUSING_GAME_EVENT, this);
-	pEventSystem->addListener((EventType)RESUMING_GAME_EVENT, this);
-	pEventSystem->addListener((EventType)SWITCHING_ANIMATIONS_EVENT, this);
+	pEventSystem->addListener((EventType)START_STOP_EVENT, this);
+	pEventSystem->addListener((EventType)NEW_GAME_EVENT, this);
+	pEventSystem->addListener((EventType)CHANGE_DIFFICULTY_EVENT, this);
 	pEventSystem->addListener((EventType)QUITTING_EVENT, this);
-	pEventSystem->addListener((EventType)ADDING_SCORE_EVENT, this);
-	pEventSystem->addListener((EventType)REMOVING_SCORE_EVENT, this);
+	pEventSystem->addListener((EventType)SCREEN_CLICK_EVENT, this);
+	pEventSystem->addListener((EventType)STOP_SOUND_EVENT, this);
+	pEventSystem->addListener((EventType)START_SOUND_EVENT, this);
+
+	//loading language
+	mMenuManager->loadData(FILE_PATH + MENU_TEXT_LOCATION);
+	mHUD->loadData(FILE_PATH + MENU_TEXT_LOCATION);
 
 	// Add sounds
 	mSoundManager->loadSample(mDeathIndex, ASSET_PATH + SOUND_ASSET_PATH + mDeathSound);
@@ -122,7 +125,23 @@ void Game::init()
 	mSoundManager->loadSample(mSpawnIndex, ASSET_PATH + SOUND_ASSET_PATH + mSpawnSound);
 	mIsInitted = true;
 
-	// TO DO: init graphics buffers here
+	// Adding to graphics buffer
+	Color black(0, 0, 0, 255);
+	Color gray(65, 65, 65, 255);
+	GraphicsBuffer* pBlackBuffer = new GraphicsBuffer(DISP_WIDTH, DISP_HEIGHT);
+	GraphicsBuffer* pGridBuffer = new GraphicsBuffer(gray, 40, 40);
+	//GraphicsBuffer* pRedBallBuffer = new GraphicsBuffer(ASSET_PATH + GLOW_BALLS_FILENAME);
+	//GraphicsBuffer* pBlueBallBuffer = new GraphicsBuffer(ASSET_PATH + GLOW_BALLS_FILENAME);
+
+	assert(pBlackBuffer && pGridBuffer);
+
+	mGraphicsSystem->setBitmapToColor(*pBlackBuffer, black);
+
+	int bufferIndex = 0;
+
+	// Add each graphics buffer to the manager
+	mGraphicsBufferManager->addBuffer(bufferIndex, *pBlackBuffer); bufferIndex++;
+	mGraphicsBufferManager->addBuffer(bufferIndex, *pGridBuffer); bufferIndex++;
 }
 
 // Delete game systems in opposite order of creation
@@ -144,34 +163,11 @@ void Game::cleanup()
 void Game::doLoop()
 {
 	PerformanceTracker* pPerformanceTracker = new PerformanceTracker;
-	const double frameRate = 60.0;
-	double targetTime = 1000.0 / frameRate;
+	const double frameRate = 16.7;
 
-	// Adding to graphics buffer
-	Color black(0, 0, 0, 255);
-	GraphicsBuffer* pBlackBuffer = new GraphicsBuffer(DISP_WIDTH, DISP_HEIGHT);
-	GraphicsBuffer* pRedBallBuffer = new GraphicsBuffer(ASSET_PATH + GLOW_BALLS_FILENAME);
-	GraphicsBuffer* pBlueBallBuffer = new GraphicsBuffer(ASSET_PATH + GLOW_BALLS_FILENAME);
-
-	assert(pBlackBuffer && pRedBallBuffer && pBlueBallBuffer);
-
-	mGraphicsSystem->setBitmapToColor(*pBlackBuffer, black);
-
-	int bufferIndex = 0;
-
-	// Add each graphics buffer to the manager
-	mGraphicsBufferManager->addBuffer(bufferIndex, *pBlackBuffer); bufferIndex++;
-	mGraphicsBufferManager->addBuffer(bufferIndex, *pRedBallBuffer); bufferIndex++;
-	mGraphicsBufferManager->addBuffer(bufferIndex, *pBlueBallBuffer); bufferIndex++;
-
+	// For grid
 	srand((unsigned int)time(NULL));
 
-	double frames = 0;
-	double deltaTime = 0;
-
-	int secondsPassed = 100;
-	bool happened = false;
-/*
 	while (mIsLooping)
 	{
 		// Start loop timer
@@ -182,7 +178,7 @@ void Game::doLoop()
 		
 		if (!mMenuManager->getIsMenuOpen())
 		{
-			//If a menu is not open draw what is needed for the game
+			// If a menu is not open draw what is needed for the game
 			mInputSystem->updateEvents();
 			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(0), 1.0);
 
@@ -192,7 +188,7 @@ void Game::doLoop()
 
 		if (mMenuManager->getIsMenuOpen())
 		{
-			//If a menu is open do not draw game but draw what is needed for the menu
+			// If a menu is open do not draw game but draw what is needed for the menu
 			mHUD->pauseTimer();
 			mInputSystem->updateEvents();
 			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(0), 1.0);
@@ -201,9 +197,9 @@ void Game::doLoop()
 			mGraphicsSystem->flip();
 		}
 
-		timer.sleepUntilElapsed(targetTime);
+		timer.sleepUntilElapsed(frameRate);
 		pPerformanceTracker->stopTracking("loop");
-	}*/
+	}
 	delete pPerformanceTracker;
 }
 
@@ -212,41 +208,46 @@ void Game::handleEvent(const Event& theEvent)
 {
 	const GameEvent& gameEvent = static_cast<const GameEvent&>(theEvent);
 
-	if (gameEvent.getType() == START_GAME_EVENT)
+	//if (gameEvent.getType() == START_SOUND_EVENT) { mSoundManager->soundOn(); }
+	//if (gameEvent.getType() == STOP_SOUND_EVENT) { mSoundManager->soundOff(); }
+
+	if (gameEvent.getType() == START_STOP_EVENT)
 	{
-		mHasStarted = true;
+		mMenuManager->toggleMenu();
 	}
-	if (gameEvent.getType() == PAUSING_GAME_EVENT)
+	// TO DO: reset current game
+	if (gameEvent.getType() == NEW_GAME_EVENT)
 	{
-		mHasPaused = true;
+		mHUD->reset();
 	}
-	if (gameEvent.getType() == RESUMING_GAME_EVENT)
+	if (gameEvent.getType() == CHANGE_DIFFICULTY_EVENT)
 	{
-		mHasPaused = false;
+		//mPlayerManager->setDifficulty(mpMenuManager->getCurrentDifficulty());
 	}
-	if (gameEvent.getType() == SWITCHING_ANIMATIONS_EVENT)
+	if (gameEvent.getType() == SCREEN_CLICK_EVENT)
 	{
-		mUnitManager->changeUnitAnimation(*mUnitManager->getObjectAtLocation(gameEvent.getMouseLocation()));
+		if (mMenuManager->getIsMenuOpen() == true)
+		{
+			mMenuManager->checkInput(gameEvent.getMouseLocation());
+		}
 	}
 	if (gameEvent.getType() == QUITTING_EVENT)
 	{
-		mIsLooping = false;
-		mHasPaused = false;
-	}
-	if (gameEvent.getType() == ADDING_SCORE_EVENT)
-	{
-		mPoints += mPointIncrease;
-		mSoundManager->playSample(false, mChangeSpriteIndex);
-	}
-	if (gameEvent.getType() == REMOVING_SCORE_EVENT)
-	{
-		mPoints -= mPointDecrease;
-		if (mPoints < 0)
+		//hitting escape while the game is playing doesn't do anything
+		if (mMenuManager->getIsMenuOpen() == true)
 		{
-			mPoints = 0;
-			mSoundManager->playSample(false, mGameOverIndex);
+			if (mMenuManager->getCurrentMenu() != 0)
+			{
+				mMenuManager->setToMain();
+			}
+			else
+			{
+				if (mMenuManager->shouldQuit())
+				{
+					mIsLooping = false;
+				}
+			}
 		}
-		mSoundManager->playSample(false, mDeathIndex);
 	}
 }
 
