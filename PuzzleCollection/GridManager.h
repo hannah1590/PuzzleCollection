@@ -3,7 +3,6 @@
 #include <vector>
 #include <stack>
 #include <random>
-
 using namespace std;
 
 class GridManager : public Trackable
@@ -14,17 +13,17 @@ public:
 
 	void initGrid();
 	void fillGrid();
-	void printGrid();
+	void printGrid(); // for debug purposes
 
 	vector<int> checkRow(int x, int y);
 	vector<int> checkColumn(int x, int y);
 	vector<int> checkBox(int x, int y);
 
 	vector<int> combineVectors(vector<int> a, vector<int> b);
-	bool switchNumbers(vector<int> holder, vector<int> options, vector<int> ogAvail, int x, int y, int a, int b);
-	Vector2D findNumInBox(int x, int y, int num);
+	Vector2D findRepeatInColumn(int x, int y, int num);
+	Vector2D findRepeatInRow(int x, int y, int num);
 private:
 	int mSize, mBoxSizeX, mBoxSizeY; // Column and row size is always equal while the box sizes can be different but must multiply together to equal size
-	vector<int> mNums;
+	vector<int> mNums; // All possible numbers that can be in the grid
 	vector<vector<int>> mGrid; // [y][x]
 };

@@ -4,6 +4,9 @@ Game* Game::mspInstance = nullptr;
 
 Game::Game()
 {
+	// For the grid
+	srand(time(NULL));
+
 	getVariables();
 	getSounds();
 
