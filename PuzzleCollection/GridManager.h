@@ -1,30 +1,49 @@
 #pragma once
 #include <Trackable.h>
-#include <Vector2D.h>
-#include <vector>
-#include <stack>
-#include <random>
+#include "GraphicsSystem.h"
+#include "GraphicsBufferManager.h"
+#include "Tile.h"
+#include "GridFiller.h"
+#include <map>
+#include <iostream>
+
 using namespace std;
+
+// Used to differentiate between the different available games
+enum GridType
+{
+	SUDOKU,
+	NUM_GRID_TYPES
+};
 
 class GridManager : public Trackable
 {
 public:
-	GridManager(int size, int boxX, int boxY);
+	GridManager(GraphicsSystem& graphicsSystem, GridFiller& gridFiller);
 	~GridManager();
 
-	void initGrid();
-	void fillGrid();
-	void printGrid(); // for debug purposes
-
-	vector<int> checkRow(int x, int y);
-	vector<int> checkColumn(int x, int y);
-	vector<int> checkBox(int x, int y);
-
-	vector<int> combineVectors(vector<int> a, vector<int> b);
-	Vector2D findRepeatInColumn(int x, int y, int num);
-	Vector2D findRepeatInRow(int x, int y, int num);
+	void init(GraphicsBufferManager& graphicsBufferManager, GraphicsBuffer& tileBuffer);
+	void loadGrid(GridType gridType, int gridSize, int dispWidth, int dispHeight);
+	void clearGrid();
+	void draw(int boxSizeX, int boxSizeY);
 private:
-	int mSize, mBoxSizeX, mBoxSizeY; // Column and row size is always equal while the box sizes can be different but must multiply together to equal size
-	vector<int> mNums; // All possible numbers that can be in the grid
-	vector<vector<int>> mGrid; // [y][x]
+	map <int, Tile*> mGridMap;
+	GraphicsBuffer* mTileBuffer;
+	GraphicsBuffer* mXSeparatorBuffer;
+	GraphicsBuffer* mYSeparatorBuffer;
+	GraphicsSystem* mGraphicsSystem;
+	GraphicsBufferManager* mGraphicsBufferManager;
+	GridFiller* mGridFiller;
+
+	int mTileSize; // How big each tile is
+	int mGridSize; // How big the grid is; usually sudoku is 9x9 so the size would be 9
+	GridType mCurrentGrid;
+	// Buffer indices
+	int mXSeparatorIndex; 
+	int mYSeparatorIndex;
+
+	const float PADDING = 5.0f; // Padding between grid tiles
+	const string ASSET_PATH = "..\\..\\PuzzleCollection\\libraries\\assets\\";
+	const string FONT_FILENAME = "cour.ttf";
+	const int FONT_SIZE = 50;
 };

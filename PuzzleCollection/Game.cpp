@@ -16,7 +16,8 @@ Game::Game()
 	mHUD = new HUD(*mGraphicsSystem);
 	mSoundManager = new SoundManager(mMaxSamples);
 	mMenuManager = new MenuManager(*mGraphicsSystem);
-	mGridManager = new GridManager(9, 3, 3); // basic variables
+	mGridFiller = new GridFiller(9, 3, 3); // basic variables; adjust to changable ones later
+	mGridManager = new GridManager(*mGraphicsSystem, *mGridFiller);
 }
 
 // End game
@@ -140,14 +141,19 @@ void Game::init()
 	int bufferIndex = 0;
 
 	// Add each graphics buffer to the manager
+	// TO DO: make a map so that the buffer index for each one is accessible
 	mGraphicsBufferManager->addBuffer(bufferIndex, *pBlackBuffer); bufferIndex++;
 	mGraphicsBufferManager->addBuffer(bufferIndex, *pGridBuffer); bufferIndex++;
+
+	// Init grid
+	mGridManager->init(*mGraphicsBufferManager, *mGraphicsBufferManager->getBuffer(1));
 }
 
 // Delete game systems in opposite order of creation
 void Game::cleanup()
 {
 	delete mGridManager;
+	delete mGridFiller;
 	delete mMenuManager;
 	delete mSoundManager;
 	delete mHUD;
@@ -167,6 +173,9 @@ void Game::doLoop()
 
 	// For grid
 	srand((unsigned int)time(NULL));
+	
+	// Basic values for now, will adjust once other features start working
+	mGridManager->loadGrid(SUDOKU, 9, DISP_WIDTH, DISP_HEIGHT);
 
 	while (mIsLooping)
 	{
@@ -181,6 +190,7 @@ void Game::doLoop()
 			// If a menu is not open draw what is needed for the game
 			mInputSystem->updateEvents();
 			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(0), 1.0);
+			mGridManager->draw(3, 3);
 
 			mHUD->update(mPoints, mSavedTime);
 			mGraphicsSystem->flip();

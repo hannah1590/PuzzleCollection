@@ -11,9 +11,11 @@ public:
 
 	void clear();
 
-	void addBuffer(int index, GraphicsBuffer& newGraphicsBuffer) { mGraphicsBuffers.emplace(index, &newGraphicsBuffer); }
+	void addBuffer(int index, GraphicsBuffer& newGraphicsBuffer);
 	GraphicsBuffer* getBuffer(int index) { return mGraphicsBuffers[index]; }
-	void deleteBuffer(int index) { mGraphicsBuffers.erase(index); };
+	bool doesExist(int index);
+	void deleteBuffer(int index);// { mGraphicsBuffers.erase(index); }
+	int getSize() { return mGraphicsBuffers.size(); }
 private:
 	std::map<int, GraphicsBuffer*> mGraphicsBuffers;
 };

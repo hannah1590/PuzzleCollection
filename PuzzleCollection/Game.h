@@ -8,6 +8,7 @@
 #include "MenuManager.h"
 #include "HUD.h"
 #include "UnitManager.h"
+#include "GridFiller.h"
 #include "GridManager.h"
 #include <EventListener.h>
 
@@ -57,6 +58,7 @@ private:
 	HUD* mHUD;
 	SoundManager* mSoundManager;
 	MenuManager* mMenuManager;
+	GridFiller* mGridFiller;
 	GridManager* mGridManager;
 
 	int mTimeElapsed = 0;
