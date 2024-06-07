@@ -8,6 +8,8 @@
 #include "Color.h"
 using namespace std;
 
+class GraphicsBuffer;
+
 // Handles allegro draw functions and buffers
 class GraphicsSystem:public Trackable
 {
@@ -29,8 +31,8 @@ public:
 	void drawBackbuffer(const Vector2D& targetLoc, GraphicsBuffer& destination, float scale); 
 	void drawGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, GraphicsBuffer& destination, float scale); 
 
-	void writeTextToBackbuffer(const Vector2D& targetLoc, Font& font, Color& color, const std::string& text);
-	void writeTextToGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, Font& font,  Color& color, const std::string& text);
+	void writeTextToBackbuffer(const Vector2D& targetLoc, Font& font, Color& color, const std::string& text, bool alignCenter);
+	void writeTextToGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, Font& font,  Color& color, const std::string& text, bool alignCenter);
 	void saveBuffer(GraphicsBuffer& buffer, const std::string& filename);
 
 	void setBitmapToColor(GraphicsBuffer& bitmap, Color& color);

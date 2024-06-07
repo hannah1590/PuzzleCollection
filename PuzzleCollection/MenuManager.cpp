@@ -35,11 +35,11 @@ void MenuManager::draw()
 			string text4 = mTextMap["Menu0_4"]; //OPTIONS
 			string text5 = mTextMap["Menu0_5"]; //QUIT
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + textBuffer), font, white, text2);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 2)), font, white, text3);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 3)), font, white, text4);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 4)), font, white, text5);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + textBuffer), font, white, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 2)), font, white, text3, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 3)), font, white, text4, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 4)), font, white, text5, false);
 			mGraphicsSystem->drawButtons(4, 70, 40, 250, 180, white);
 		}
 
@@ -53,9 +53,9 @@ void MenuManager::draw()
 			string text2 = mTextMap["Menu1_2"];
 			string text3 = mTextMap["Menu1_3"];
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1);
-			mGraphicsSystem->writeTextToBackbuffer(loc2, smallFont, white, text2);
-			mGraphicsSystem->writeTextToBackbuffer(loc3, smallFont, white, text3);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc2, smallFont, white, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc3, smallFont, white, text3, false);
 		}
 
 		if (mCurrentMenu == 2)
@@ -66,8 +66,8 @@ void MenuManager::draw()
 			string text1 = mTextMap["Menu2_1"];
 			string text2 = mTextMap["Menu2_2"];
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1);
-			mGraphicsSystem->writeTextToBackbuffer(loc2, smallFont, white, text2);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc2, smallFont, white, text2, false);
 		}
 
 		if (mCurrentMenu == 3)
@@ -80,11 +80,11 @@ void MenuManager::draw()
 			string text4 = "In progress";
 			string text5 = mTextMap["Menu3_4"]; //BACK
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + textBuffer), font, white, text2);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 2)), font, white, text3);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 3)), font, white, text4);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 4)), font, white, text5);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + textBuffer), font, white, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 2)), font, white, text3, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 3)), font, white, text4, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 4)), font, white, text5, false);
 			mGraphicsSystem->drawButtons(4, 70, 40, 250, 180, white);
 		}
 
@@ -102,11 +102,11 @@ void MenuManager::draw()
 			if (mCurrentDifficulty == 1) { text1 = mTextMap["Menu4_1"] + text3; }
 			if (mCurrentDifficulty == 2) { text1 = mTextMap["Menu4_1"] + text4; }
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + textBuffer), font, white, text2);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 2)), font, white, text3);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 3)), font, white, text4);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 4)), font, white, text5);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + textBuffer), font, white, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 2)), font, white, text3, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 3)), font, white, text4, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (textBuffer * 4)), font, white, text5, false);
 			mGraphicsSystem->drawButtons(4, 70, 40, 250, 180, white);
 		}
 
@@ -118,8 +118,8 @@ void MenuManager::draw()
 			string text1 = mTextMap["Menu7_1"];
 			string text2 = mTextMap["Menu7_2"];
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1);
-			mGraphicsSystem->writeTextToBackbuffer(loc2, smallFont, white, text2);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, font, white, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc2, smallFont, white, text2, false);
 		}
 	}
 }

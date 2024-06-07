@@ -1,10 +1,14 @@
 #include "Tile.h"
 
-Tile::Tile(int width, int height)
+Tile::Tile(Vector2D pos, int gridSize)
 {
-	mWidth = width;
-	mHeight = height;
+	mPosition = pos;
 	mValue = 0;
+
+	for (int i = 0; i < gridSize; i++)
+	{
+		mNotes[i] = false;
+	}
 }
 
 Tile::~Tile()

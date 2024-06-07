@@ -13,10 +13,10 @@ Game::Game()
 	mGraphicsBufferManager = new GraphicsBufferManager;
 	mUnitManager = new UnitManager;
 	mInputTranslator = new InputTranslator;
-	mHUD = new HUD(*mGraphicsSystem);
+	mHUD = new HUD(*mGraphicsSystem, DISP_WIDTH, DISP_HEIGHT);
 	mSoundManager = new SoundManager(mMaxSamples);
 	mMenuManager = new MenuManager(*mGraphicsSystem);
-	mGridFiller = new GridFiller(9, 3, 3); // basic variables; adjust to changable ones later
+	mGridFiller = new GridFiller(mGridSize, mBoxSizeX, mBoxSizeY); 
 	mGridManager = new GridManager(*mGraphicsSystem, *mGridFiller);
 }
 
@@ -114,6 +114,7 @@ void Game::init()
 	pEventSystem->addListener((EventType)SCREEN_CLICK_EVENT, this);
 	pEventSystem->addListener((EventType)STOP_SOUND_EVENT, this);
 	pEventSystem->addListener((EventType)START_SOUND_EVENT, this);
+	pEventSystem->addListener((EventType)OPEN_CLOSE_NOTES_EVENT, this);
 
 	//loading language
 	mMenuManager->loadData(FILE_PATH + MENU_TEXT_LOCATION);
@@ -129,24 +130,43 @@ void Game::init()
 	// Adding to graphics buffer
 	Color black(0, 0, 0, 255);
 	Color gray(65, 65, 65, 255);
+	Color white(255, 255, 255, 255);
+	Color green(0, 255, 0, 255);
 	GraphicsBuffer* pBlackBuffer = new GraphicsBuffer(DISP_WIDTH, DISP_HEIGHT);
-	GraphicsBuffer* pGridBuffer = new GraphicsBuffer(gray, 40, 40);
-	//GraphicsBuffer* pRedBallBuffer = new GraphicsBuffer(ASSET_PATH + GLOW_BALLS_FILENAME);
-	//GraphicsBuffer* pBlueBallBuffer = new GraphicsBuffer(ASSET_PATH + GLOW_BALLS_FILENAME);
+	GraphicsBuffer* pTileBuffer = new GraphicsBuffer(gray, mTileSize, mTileSize);
 
-	assert(pBlackBuffer && pGridBuffer);
+	// Buffers for the lines separating each box
+	GraphicsBuffer* pXSeparatorBuffer = new GraphicsBuffer(white, mGridSize * (mTileSize + TILE_PADDING) + TILE_PADDING, TILE_PADDING);
+	GraphicsBuffer* pYSeparatorBuffer = new GraphicsBuffer(white, TILE_PADDING, mGridSize * (mTileSize + TILE_PADDING) + TILE_PADDING);
+
+	// Buffers for a box highlighting the current tile clicked
+	GraphicsBuffer* pXHighlightBuffer = new GraphicsBuffer(green, mTileSize + (TILE_PADDING * 2), TILE_PADDING);
+	GraphicsBuffer* pYHighlightBuffer = new GraphicsBuffer(green, TILE_PADDING, mTileSize + (TILE_PADDING * 2));
+
+	assert(pBlackBuffer && pTileBuffer && pXSeparatorBuffer && pYSeparatorBuffer && pXHighlightBuffer && pYHighlightBuffer);
 
 	mGraphicsSystem->setBitmapToColor(*pBlackBuffer, black);
 
 	int bufferIndex = 0;
 
 	// Add each graphics buffer to the manager
-	// TO DO: make a map so that the buffer index for each one is accessible
-	mGraphicsBufferManager->addBuffer(bufferIndex, *pBlackBuffer); bufferIndex++;
-	mGraphicsBufferManager->addBuffer(bufferIndex, *pGridBuffer); bufferIndex++;
+	mGraphicsBufferManager->addBuffer(bufferIndex, *pBlackBuffer);
+	mBackgroundIndex = bufferIndex; bufferIndex++;
+	mGraphicsBufferManager->addBuffer(bufferIndex, *pTileBuffer);
+	mTileIndex = bufferIndex; bufferIndex++;
+	mGraphicsBufferManager->addBuffer(bufferIndex, *pXSeparatorBuffer);
+	mXSeparatorIndex = bufferIndex; bufferIndex++;
+	mGraphicsBufferManager->addBuffer(bufferIndex, *pYSeparatorBuffer);
+	mYSeparatorIndex = bufferIndex; bufferIndex++;
+	mGraphicsBufferManager->addBuffer(bufferIndex, *pXHighlightBuffer);
+	mXHighlightIndex = bufferIndex; bufferIndex++;
+	mGraphicsBufferManager->addBuffer(bufferIndex, *pYHighlightBuffer);
+	mYHighlightIndex = bufferIndex; bufferIndex++;
 
 	// Init grid
-	mGridManager->init(*mGraphicsBufferManager, *mGraphicsBufferManager->getBuffer(1));
+	mGridManager->init(*mGraphicsBufferManager, mTileIndex);
+	// Init HUD
+	mHUD->init(*mGraphicsBufferManager, mTileIndex, mGridSize);
 }
 
 // Delete game systems in opposite order of creation
@@ -175,7 +195,7 @@ void Game::doLoop()
 	srand((unsigned int)time(NULL));
 	
 	// Basic values for now, will adjust once other features start working
-	mGridManager->loadGrid(SUDOKU, 9, DISP_WIDTH, DISP_HEIGHT);
+	mGridManager->loadGrid(SUDOKU, mGridSize, DISP_WIDTH, DISP_HEIGHT);
 
 	while (mIsLooping)
 	{
@@ -189,10 +209,10 @@ void Game::doLoop()
 		{
 			// If a menu is not open draw what is needed for the game
 			mInputSystem->updateEvents();
-			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(0), 1.0);
-			mGridManager->draw(3, 3);
+			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(mBackgroundIndex), 1.0);
+			mGridManager->draw(mBoxSizeX, mBoxSizeY, mXSeparatorIndex, mYSeparatorIndex, mTileIndex, mXHighlightIndex, mYHighlightIndex);
 
-			mHUD->update(mPoints, mSavedTime);
+			mHUD->update(mSavedTime, mNotesOn); // adjust for when the notes are open or not
 			mGraphicsSystem->flip();
 		}
 
@@ -201,7 +221,7 @@ void Game::doLoop()
 			// If a menu is open do not draw game but draw what is needed for the menu
 			mHUD->pauseTimer();
 			mInputSystem->updateEvents();
-			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(0), 1.0);
+			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(mBackgroundIndex), 1.0);
 			mMenuManager->draw();
 
 			mGraphicsSystem->flip();
@@ -240,6 +260,21 @@ void Game::handleEvent(const Event& theEvent)
 		{
 			mMenuManager->checkInput(gameEvent.getMouseLocation());
 		}
+		else
+		{
+			int num;
+			num = mHUD->checkInput(gameEvent.getMouseLocation());
+			if (num != 0)
+			{
+				if (!mHUD->getNotesOn())
+					mGridManager->changeValue(num);
+				else
+					mGridManager->addNote(num);
+			}
+				
+			else
+				mGridManager->checkInput(gameEvent.getMouseLocation());
+		}
 	}
 	if (gameEvent.getType() == QUITTING_EVENT)
 	{
@@ -259,27 +294,9 @@ void Game::handleEvent(const Event& theEvent)
 			}
 		}
 	}
-}
-
-// Creates a sphere at a random speed, velocity, and spawn location based on game variables
-void Game::createRandomUnit()
-{
-	if (mUnitManager->getMaxObjectects() > mUnitManager->getAllocatedObjects()) 
+	if (gameEvent.getType() == OPEN_CLOSE_NOTES_EVENT)
 	{
-		int range = (mMaxVelocity - mMinVelocity) + 1;
-		int x = rand() % range + mMinVelocity;
-		int y = rand() % range + mMinVelocity;
-		Vector2D vel(x, y);
-		range = (mMaxSpeed - mMinSpeed) + 1;
-		int speed = rand() % range + mMinSpeed;
-
-		int spawnRangeX = rand() % (((DISP_WIDTH / 2) + mSpawnRadius) - ((DISP_WIDTH / 2) - mSpawnRadius)) + ((DISP_WIDTH / 2) - mSpawnRadius);
-		int spawnRangeY = rand() % (((DISP_HEIGHT / 2) + mSpawnRadius) - ((DISP_HEIGHT / 2) - mSpawnRadius)) + ((DISP_HEIGHT / 2) - mSpawnRadius);
-
-		Unit* pUnit = new Unit(*mGraphicsBufferManager, Vector2D(spawnRangeX, spawnRangeY), vel, speed);
-		mUnitManager->addUnit(*pUnit);
-
-		mSoundManager->playSample(false, mSpawnIndex);
+		mNotesOn = !mNotesOn;
 	}
 }
 

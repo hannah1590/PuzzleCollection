@@ -23,6 +23,7 @@ class Unit;
 class UnitManager;
 class GraphicsBufferManager;
 class InputTranslator;
+class HUD;
 
 // Controls all game systems
 class Game : public EventListener
@@ -34,8 +35,6 @@ public:
 
 	void init();
 	void cleanup();
-
-	void createRandomUnit();
 
 	void save();
 	void loadSave();
@@ -68,33 +67,14 @@ private:
 	bool mHasStarted = false;
 	bool mHasPaused = false;
 
-	// Variables from original project; Changable in GameVariableValues.txt
-	int mMinVelocity;
-	int mMaxVelocity;
-	int mMinSpeed;
-	int mMaxSpeed;
-
-	int mMaxSpeedCap;
-	int mMinSpeedCap;
-
-	int mSpawnRadius;
-	int mSpawnRadiusCap;
-
-	int mRandomChance;
-	int mRandomChanceCap;
-
-	int mSecondsUntilIncrease;
-
-	int mSpeedIncreaseRate;
-	int mSpawnIncreaseRate;
-	int mRandomChanceIncreaseRate;
-
-	int mPoints;
-	int mPointIncrease;
-	int mPointDecrease;
-
 	float mSavedTime;
-
+	bool mNotesOn = false;
+	// Change to file changable ones later
+	int mGridSize = 9;
+	int mBoxSizeX = 3;
+	int mBoxSizeY = 3;
+	int mTileSize = 40;
+	const float TILE_PADDING = 5.0f;
 
 	const int DISP_WIDTH = 800;
 	const int DISP_HEIGHT = 600;
@@ -122,6 +102,14 @@ private:
 	int mGameOverIndex = 1;
 	int mChangeSpriteIndex = 2;
 	int mSpawnIndex = 3;
+
+	// Buffer Indices
+	int mBackgroundIndex;
+	int mTileIndex;
+	int mXSeparatorIndex;
+	int mYSeparatorIndex;
+	int mXHighlightIndex;
+	int mYHighlightIndex;
 
 	Game();
 	~Game();

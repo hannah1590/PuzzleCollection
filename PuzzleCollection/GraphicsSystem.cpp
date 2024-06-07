@@ -137,19 +137,25 @@ void GraphicsSystem::drawGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, co
 } 
 
 // Write text on back buffer
-void GraphicsSystem::writeTextToBackbuffer(const Vector2D& targetLoc, Font& font, Color& color, const std::string& text) 
+void GraphicsSystem::writeTextToBackbuffer(const Vector2D& targetLoc, Font& font, Color& color, const std::string& text, bool alignCenter) 
 {
 	const ALLEGRO_COLOR pColor = al_map_rgba(color.getR(), color.getG(), color.getB(), color.getA());
-	al_draw_text(font.mFont, pColor, targetLoc.getX(), targetLoc.getY(), ALLEGRO_ALIGN_LEFT, text.c_str());
+	if(alignCenter)
+		al_draw_text(font.mFont, pColor, targetLoc.getX(), targetLoc.getY(), ALLEGRO_ALIGN_CENTER, text.c_str());
+	else
+		al_draw_text(font.mFont, pColor, targetLoc.getX(), targetLoc.getY(), ALLEGRO_ALIGN_LEFT, text.c_str());
 }
 
 // Write text on top of current buffer
-void GraphicsSystem::writeTextToGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, Font& font, Color& color, const std::string& text) 
+void GraphicsSystem::writeTextToGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, Font& font, Color& color, const std::string& text, bool alignCenter)
 {
 	ALLEGRO_BITMAP* pOldTarget = al_get_target_bitmap();
 	al_set_target_bitmap(targetGraphicsBuffer.mBitmap);
 
 	const ALLEGRO_COLOR pColor = al_map_rgba(color.getR(), color.getG(), color.getB(), color.getA());
+	if(alignCenter)
+		al_draw_text(font.mFont, pColor, targetLoc.getX(), targetLoc.getY(), ALLEGRO_ALIGN_CENTER, text.c_str());
+	else
 	al_draw_text(font.mFont, pColor, targetLoc.getX(), targetLoc.getY(), ALLEGRO_ALIGN_LEFT, text.c_str());
 
 	al_set_target_bitmap(pOldTarget);
