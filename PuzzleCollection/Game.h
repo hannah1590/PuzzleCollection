@@ -40,6 +40,8 @@ public:
 	void loadSave();
 	void getVariables();
 	void getSounds();
+	void getColors();
+	void getFontData();
 
 	void doLoop();
 	void handleEvent(const Event& theEvent);
@@ -69,33 +71,56 @@ private:
 
 	float mSavedTime;
 	bool mNotesOn = false;
-	// Change to file changable ones later
-	int mGridSize = 9;
-	int mBoxSizeX = 3;
-	int mBoxSizeY = 3;
-	int mTileSize = 40;
-	const float TILE_PADDING = 5.0f;
+
+	// Game Variables
+	int mGridSize;
+	int mBoxSizeX;
+	int mBoxSizeY;
+	int mTileSize;
+	int mPercentRemoved; // Percentage of board cleared
+	float mTilePadding;
+	float mNotePadding;
 
 	const int DISP_WIDTH = 800;
 	const int DISP_HEIGHT = 600;
 
-	// File paths; TO-DO: change to editable in tex doc 
-	const string FILE_PATH = "..\\..\\PuzzleCollection\\PuzzleCollection\\";
-	const string GAME_VARIABLES_FILENAME = "GameVariablesValues.txt";
-	const string SOUND_FILENAMES_LOCATION = "SoundEffectsFileNames.txt";
+	// File paths
+	const string MAIN_FILE_PATH = "..\\..\\PuzzleCollection\\PuzzleCollection\\DataFiles\\";
+	const string ASSET_FILE_PATH = "..\\..\\PuzzleCollection\\libraries\\assets\\";
+	const string SOUND_ASSET_FILE_PATH = "minetrap\\";
 
-	const string ASSET_PATH = "..\\..\\PuzzleCollection\\libraries\\assets\\";
-	const string GLOW_BALLS_FILENAME = "glowing-balls.png";
+	// File names
+	const string GAME_VARIABLES_FILE = "GameVariables.txt";
+	const string SOUND_LIST_FILE = "SoundEffects.txt";
+	const string MENU_TEXT_FILE = "MenuData.txt";
+	const string COLOR_DATA_FILE = "ColorData.txt";
+	const string FONT_DATA_FILE = "FontData.txt";
 
-	const string SOUND_ASSET_PATH = "minetrap\\";
-	const string MENU_TEXT_LOCATION = "MenuData.txt";
-
-	// Found in SoundEffectFileNames.txt
+	// Sounds
 	string mDeathSound;
 	string mGameOverSound;
 	string mChangeSpriteSound;
 	string mSpawnSound;
 	int mMaxSamples;
+
+	// Colors
+	Color mBackgroundColor;
+	Color mTileColor;
+	Color mTextColor;
+	Color mBorderColor;
+	Color mHighlightColor;
+	Color mDefaultNumberColor;
+	Color mPlayerInputNumberColor;
+	Color mSameNumberColor;
+	Color mWrongInputColor;
+	Color mNoteUIColor;
+
+	// Font
+	string mFontName;
+	int mMenuFontSize;
+	int mSmallMenuFontSize;
+	int mNumberFontSize;
+	int mNoteFontSize;
 
 	// Index for each sound effect
 	int mDeathIndex = 0;

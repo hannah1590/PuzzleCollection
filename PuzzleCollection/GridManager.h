@@ -23,29 +23,47 @@ public:
 	~GridManager();
 
 	void init(GraphicsBufferManager& graphicsBufferManager, int tileIndex);
-	void loadGrid(GridType gridType, int gridSize, int dispWidth, int dispHeight);
+	
+	void loadGridVariables(int gridSize, int boxSizeX, int boxSizeY, int percentRemoved, float tilePadding, float notePadding);
+	void loadColorData(Color& default, Color& playerInput, Color& sameNumber, Color& wrong);
+	void loadFontData(string assetPath, string fontName, int numberFontSize, int noteFontSize);
+	
+	void loadGrid(GridType gridType, int dispWidth, int dispHeight);
+
 	void clearGrid();
-	void draw(int boxSizeX, int boxSizeY, int xSeparatorIndex, int ySeparatorIndex, int tileIndex, int xHighlightIndex, int yHighlightIndex);
+	void draw(int xSeparatorIndex, int ySeparatorIndex, int tileIndex, int xHighlightIndex, int yHighlightIndex);
 	int checkInput(Vector2D loc);
 
-	void changeValue(int value) { mHighlightTile->changeValue(value); }
-	void addNote(int value) { mHighlightTile->addNote(value); }
+	void changeValue(int value);
+	void addNote(int value) { mHighlightTile->turnOnOffNote(value); }
 private:
 	map <int, Tile*> mGridMap;
 	GraphicsSystem* mGraphicsSystem;
 	GraphicsBufferManager* mGraphicsBufferManager;
 	GridFiller* mGridFiller;
 
-	int mTileSize; // How big each tile is
+	// Grid Variables
 	int mGridSize; // How big the grid is; usually sudoku is 9x9 so the size would be 9
+	int mBoxSizeX;
+	int mBoxSizeY;
+	int mTileSize;
+	int mPercentRemoved; // Percentage of board cleared
+	float mTilePadding;
+	float mNotePadding;
+
 	GridType mCurrentGrid;
 
 	bool mIsHighlighting = false;
 	Vector2D mHighlightLoc;
 	Tile* mHighlightTile;
 
-	const float PADDING = 5.0f; // Padding between grid tiles
-	const string ASSET_PATH = "..\\..\\PuzzleCollection\\libraries\\assets\\";
-	const string FONT_FILENAME = "cour.ttf";
-	const int FONT_SIZE = 30;
+	// Color variables
+	Color mDefaultNumberColor;
+	Color mPlayerInputColor;
+	Color mSameNumberColor; 
+	Color mWrongInputColor;
+
+	// Font variables
+	Font mNumberFont;
+	Font mNotesFont;
 };

@@ -17,6 +17,9 @@ public:
 	MenuManager(GraphicsSystem& graphicsSystem);
 	~MenuManager();
 
+	void loadColorData(Color& text);
+	void loadFontData(string assetPath, string fontName, int menuFontSize, int smallMenuFontSize);
+
 	bool shouldQuit() { return mShouldQuit; }
 	bool getIsMenuOpen() { return mIsMenuOpen; }
 	int getCurrentMenu() { return mCurrentMenu; }
@@ -42,8 +45,11 @@ private:
 
 	map<string, string> mTextMap;
 
-	const string ASSET_PATH = "..\\..\\PuzzleCollection\\libraries\\assets\\";
-	const string FONT_FILENAME = "cour.ttf";
-	const int FONT_SIZE = 50;
-	const int FONT_SIZE_SMALL = 25;
+	// Color variables
+	Color mTextColor;
+
+	// Font variables
+	Font mMenuFont;
+	Font mSmallMenuFont;
+	int mTextBuffer;
 };

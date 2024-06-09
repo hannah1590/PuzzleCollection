@@ -5,4 +5,4 @@
 5 Difficulty: EASY NORMAL HARD BACK
 4 Sound: ON OFF BACK
 2 You Win!,Press Escape to Exit,
-HUD Time
+HUD Time Notes

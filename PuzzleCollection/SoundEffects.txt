@@ -1,5 +1,0 @@
-orb leaving bounds without being changed
-game over 
-successfully clicked orb
-orb spawned
-number of samples

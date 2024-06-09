@@ -1,0 +1,7 @@
+GridSize          9
+BoxSizeX          3
+BoxSizeY          3
+TileSize         45
+PercentRemoved   40
+TilePadding       5
+NotePadding      15

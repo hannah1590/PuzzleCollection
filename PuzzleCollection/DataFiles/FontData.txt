@@ -1,0 +1,5 @@
+Font                cour.ttf
+MenuFontSize        50
+SmallMenuFontSize   25
+NumberFontSize      30
+NoteFontsize        15

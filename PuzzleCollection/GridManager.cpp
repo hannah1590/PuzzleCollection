@@ -17,14 +17,38 @@ void GridManager::init(GraphicsBufferManager& graphicsBufferManager, int tileInd
 	mTileSize = mGraphicsBufferManager->getBuffer(tileIndex)->getSize().getX();
 }
 
-void GridManager::loadGrid(GridType gridType, int gridSize, int dispWidth, int dispHeight)
+void GridManager::loadGridVariables(int gridSize, int boxSizeX, int boxSizeY, int percentRemoved, float tilePadding, float notePadding)
+{
+	mGridSize = gridSize;
+	mBoxSizeX = boxSizeX;
+	mBoxSizeY = boxSizeY;
+	mPercentRemoved = percentRemoved;
+	mTilePadding = tilePadding;
+	mNotePadding = notePadding;
+}
+
+void GridManager::loadColorData(Color& default, Color& playerInput, Color& sameNumber, Color& wrong)
+{
+	mDefaultNumberColor = default;
+	mPlayerInputColor = playerInput;
+	mSameNumberColor = sameNumber;
+	mWrongInputColor = wrong;
+}
+
+void GridManager::loadFontData(string assetPath, string fontName, int mNumberFontSize, int noteFontSize)
+{
+	mNumberFont = Font(assetPath + fontName, mNumberFontSize);
+	mNotesFont = Font(assetPath + fontName, noteFontSize);
+}
+
+void GridManager::loadGrid(GridType gridType, int dispWidth, int dispHeight)
 {
 	mCurrentGrid = gridType;
-	mGridSize = gridSize;
+	mGridSize = mGridSize;
 
 	// Centers the grid
-	float startPosX = (dispWidth / 2) - ((mGridSize * (mTileSize + PADDING)) / 2);
-	float startPosY = (dispHeight / 2) - ((mGridSize * (mTileSize + PADDING)) / 2);
+	float startPosX = (dispWidth / 2) - ((mGridSize * (mTileSize + mTilePadding)) / 2);
+	float startPosY = (dispHeight / 2) - ((mGridSize * (mTileSize + mTilePadding)) / 2);
 
 	// Set up grid according to current game
 	if (mCurrentGrid == SUDOKU)
@@ -34,7 +58,24 @@ void GridManager::loadGrid(GridType gridType, int gridSize, int dispWidth, int d
 		{
 			for (int j = 0; j < mGridSize; j++)
 			{
-				mGridMap[i * mGridSize + j] = new Tile(Vector2D(j * (mTileSize + PADDING) + startPosX, i * (mTileSize + PADDING) + startPosY), mGridSize);
+				Vector2D loc = Vector2D(j * (mTileSize + mTilePadding) + startPosX, i * (mTileSize + mTilePadding) + startPosY);
+				Tile* tile = new Tile(loc, Vector2D(j, i), mGridSize);
+				mGridMap[i * mGridSize + j] = tile;
+
+				// Load tile data
+				tile->init(*mGraphicsSystem, *mGraphicsBufferManager, mTilePadding);
+				tile->loadColorData(mDefaultNumberColor, mPlayerInputColor, mSameNumberColor, mWrongInputColor);
+				tile->loadFontData(mNumberFont, mNotesFont);
+				
+				// Gets a number between 100 and 1
+				int isRemoved = rand() % 100 + 1;
+				
+				// If the number is equal or higher to the percent, it stays, else it becomes invisible on the board
+				if (isRemoved >= mPercentRemoved)
+				{
+					mGridMap[i * mGridSize + j]->changeValue(mGridFiller->getValue(j, i));
+					mGridMap[i * mGridSize + j]->setDefault();
+				}
 			}
 		}
 	}
@@ -50,62 +91,62 @@ void GridManager::clearGrid()
 	mGridMap.clear();
 }
 
-void GridManager::draw(int boxSizeX, int boxSizeY, int xSeparatorIndex, int ySeparatorIndex, int tileIndex, int xHighlightIndex, int yHighlightIndex)
+void GridManager::draw(int xSeparatorIndex, int ySeparatorIndex, int tileIndex, int xHighlightIndex, int yHighlightIndex)
 {
 	Vector2D loc;
 	// Draw lines on the x-axis between each box
-	for (int i = 0; i < mGridSize / boxSizeY; i++)
+	for (int i = 0; i < mGridSize / mBoxSizeY; i++)
 	{
-		loc = mGridMap[(i * (mGridSize / boxSizeY)) * mGridSize]->getPos() - Vector2D(PADDING, PADDING);
+		// Finds location by getting the first tile in each column and then subtracting the padding so the line is drawn inbetween
+		loc = mGridMap[(i * (mGridSize / mBoxSizeY)) * mGridSize]->getPos() - Vector2D(mTilePadding, mTilePadding);
 		mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(xSeparatorIndex), 1.0f);
 	}
-	loc = mGridMap[(mGridSize - 1) * mGridSize]->getPos() + Vector2D(-PADDING, (float)mTileSize);
+	// Line at bottom of grid
+	loc = mGridMap[(mGridSize - 1) * mGridSize]->getPos() + Vector2D(-mTilePadding, (float)mTileSize);
 	mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(xSeparatorIndex), 1.0f);
 	
 	// Draw lines on the y-axis between each box
-	for (int i = 0; i < mGridSize / boxSizeX; i++)
+	for (int i = 0; i < mGridSize / mBoxSizeX; i++)
 	{
-		loc = mGridMap[i * (mGridSize / boxSizeX)]->getPos() - Vector2D(PADDING, PADDING);
+		// Finds location by getting the first tile in each row and then subtracting the padding so the line is drawn inbetween
+		loc = mGridMap[i * (mGridSize / mBoxSizeX)]->getPos() - Vector2D(mTilePadding, mTilePadding);
 		mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(ySeparatorIndex), 1.0f);
 	}
-	loc = mGridMap[(mGridSize - 1)]->getPos() + Vector2D((float)mTileSize, -PADDING);
+	// Line at far right of grid
+	loc = mGridMap[(mGridSize - 1)]->getPos() + Vector2D((float)mTileSize, -mTilePadding);
 	mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(ySeparatorIndex), 1.0f);
-
-	Color white(255, 255, 255, 255);
-	Font font(ASSET_PATH + FONT_FILENAME, FONT_SIZE);
-	Font notesFont(ASSET_PATH + FONT_FILENAME, 15);
 
 	// Draw each tile with the number
 	for (int i = 0; i < mGridMap.size(); i++)
 	{
-		Vector2D loc = mGridMap[i]->getPos();
-		mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(tileIndex), 1.0f);
-		// Draws correct tile value
-		//mGraphicsSystem->writeTextToBackbuffer(loc + Vector2D(mTileSize / 2.0f, PADDING), font, white, to_string(mGridFiller->getValue(i % mGridSize, i / mGridSize)), true);
-		// Draws player inputed tile value
-		if (mGridMap[i]->getValue() == 0)
+		// Checks what color the tile needs to be
+		if (mGridMap[i]->getValue() != 0)
 		{
-			for (auto& i : mGridMap[i]->getNotes())
-			{
-				// TO DO: figure out note spacing
-				mGraphicsSystem->writeTextToBackbuffer(loc + Vector2D(i.second % 3 * 5, i.second / 3 * 5), notesFont, white, to_string(i.second + 1), false);
-			}
+			// Changes the number to green if it is the same as the selected tile
+			if (mIsHighlighting && mGridMap[i]->getValue() == mHighlightTile->getValue() && !mGridMap[i]->getIsWrong())
+				mGridMap[i]->changeFontColor(mSameNumberColor);
+			else if (!mGridMap[i]->getIsWrong())
+				mGridMap[i]->changeFontColor(Color());
+
 		}
-		else
-			mGraphicsSystem->writeTextToBackbuffer(loc + Vector2D(mTileSize / 2.0f, PADDING), font, white, to_string(mGridMap[i]->getValue()), true);
+		
+		// Draw tile
+		mGridMap[i]->draw(tileIndex);
 	}
 
 	// Draw highlighted box if a number is currently clicked
 	if (mIsHighlighting)
 	{
-		Vector2D loc = mHighlightLoc - Vector2D(PADDING, PADDING);
+		// Draw above and below selected box
+		Vector2D loc = mHighlightLoc - Vector2D(mTilePadding, mTilePadding);
 		mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(xHighlightIndex), 1.0f);
-		loc = mHighlightLoc + Vector2D(-PADDING, (float)mTileSize);
+		loc = mHighlightLoc + Vector2D(-mTilePadding, (float)mTileSize);
 		mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(xHighlightIndex), 1.0f);
 
-		loc = mHighlightLoc - Vector2D(PADDING, PADDING);
+		// Draw right and left selected box
+		loc = mHighlightLoc - Vector2D(mTilePadding, mTilePadding);
 		mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(yHighlightIndex), 1.0f);
-		loc = mHighlightLoc + Vector2D((float)mTileSize, -PADDING);
+		loc = mHighlightLoc + Vector2D((float)mTileSize, -mTilePadding);
 		mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(yHighlightIndex), 1.0f);
 	}
 }
@@ -118,6 +159,7 @@ int GridManager::checkInput(Vector2D loc)
 	for (auto& i : mGridMap)
 	{
 		Vector2D tileLoc = i.second->getPos();
+		// Checks if mouse click is in bounds of a tile
 		if (x >= tileLoc.getX() && x <= tileLoc.getX() + mTileSize)
 		{
 			if (y >= tileLoc.getY() && y <= tileLoc.getY() + mTileSize)
@@ -130,4 +172,30 @@ int GridManager::checkInput(Vector2D loc)
 		}
 	}
 	mIsHighlighting = false;
+	mHighlightTile = nullptr;
+}
+
+void GridManager::changeValue(int value)
+{
+	if (mIsHighlighting && !mHighlightTile->getDefault())
+	{
+		// If the number is wrong change the font color of that number to white
+		Vector2D pos = mHighlightTile->getGridPos();
+		if (value != mGridFiller->getValue(pos.getX(), pos.getY()) && value != 0)
+		{
+			mHighlightTile->setIsWrong(true);
+			mHighlightTile->changeFontColor(mWrongInputColor);
+		}
+		else
+		{
+			mHighlightTile->setIsWrong(false);
+			mHighlightTile->changeFontColor(Color());
+		}
+			
+		// Sets tile equal to value unless it is already equal, then set to 0
+		if (value != mHighlightTile->getValue())
+			mHighlightTile->changeValue(value);
+		else
+			mHighlightTile->changeValue(0);
+	}
 }

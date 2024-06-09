@@ -6,6 +6,8 @@ Game::Game()
 {
 	getVariables();
 	getSounds();
+	getColors();
+	getFontData();
 
 	// Initialize all game systems
 	mInputSystem = new InputSystem;
@@ -18,6 +20,16 @@ Game::Game()
 	mMenuManager = new MenuManager(*mGraphicsSystem);
 	mGridFiller = new GridFiller(mGridSize, mBoxSizeX, mBoxSizeY); 
 	mGridManager = new GridManager(*mGraphicsSystem, *mGridFiller);
+
+	mHUD->loadColorData(mTextColor, mTileColor, mNoteUIColor);
+	mHUD->loadFontData(ASSET_FILE_PATH, mFontName, mMenuFontSize, mNoteFontSize);
+
+	mMenuManager->loadColorData(mTextColor);
+	mMenuManager->loadFontData(ASSET_FILE_PATH, mFontName, mMenuFontSize, mSmallMenuFontSize);
+
+	mGridManager->loadGridVariables(mGridSize, mBoxSizeX, mBoxSizeY, mPercentRemoved, mTilePadding, mNotePadding);
+	mGridManager->loadColorData(mDefaultNumberColor, mPlayerInputNumberColor, mSameNumberColor, mWrongInputColor);
+	mGridManager->loadFontData(ASSET_FILE_PATH, mFontName, mNumberFontSize, mNoteFontSize);
 }
 
 // End game
@@ -42,28 +54,28 @@ void Game::loadSave()
 // Initialize game variables from file
 void Game::getVariables()
 {
-	// None of these variables are currently relevent
-	/*
-	ifstream gameVariables(FILE_PATH + GAME_VARIABLES_FILENAME);
+	ifstream gameVariables(MAIN_FILE_PATH + GAME_VARIABLES_FILE);
 	if (!gameVariables.is_open())
 	{
 		cout << "Error getting GameVariables file" << endl;
 	}
-	gameVariables >> mMinVelocity >> mMaxVelocity >>
-		mMinSpeed >> mMaxSpeed >>
-		mMaxSpeedCap >> mMinSpeedCap >>
-		mSpawnRadius >> mSpawnRadiusCap >>
-		mRandomChance >> mRandomChanceCap >>
-		mSecondsUntilIncrease >> mSpeedIncreaseRate >>
-		mSpawnIncreaseRate >> mRandomChanceIncreaseRate >> 
-		mPoints >> mPointIncrease >> mPointDecrease;
-	gameVariables.close();*/
+	string holder;
+
+	// Ignores variable label and just gets number
+	gameVariables >> holder >> mGridSize
+		>> holder >> mBoxSizeX
+		>> holder >> mBoxSizeY
+		>> holder >> mTileSize
+		>> holder >> mPercentRemoved
+		>> holder >> mTilePadding
+		>> holder >> mNotePadding;
+	gameVariables.close();
 }
 
 // Initialize sound wavs from file
 void Game::getSounds()
 {
-	ifstream soundFiles(FILE_PATH + SOUND_FILENAMES_LOCATION);
+	ifstream soundFiles(MAIN_FILE_PATH + SOUND_LIST_FILE);
 	if (!soundFiles.is_open())
 	{
 		cout << "Error getting SoundEffects file" << endl;
@@ -74,6 +86,72 @@ void Game::getSounds()
 	getline(soundFiles, mSpawnSound);
 	soundFiles >> mMaxSamples;
 	soundFiles.close();
+}
+
+// Get color variables from file
+void Game::getColors()
+{
+	ifstream colorFile(MAIN_FILE_PATH + COLOR_DATA_FILE);
+	if (!colorFile.is_open())
+	{
+		cout << "Error getting Color file" << endl;
+	}
+	string holder;
+	int r, g, b, a;
+
+	getline(colorFile, holder);
+
+	// Get the values for each color and assign it to the correct color variable
+	colorFile >> holder >> r >> g >> b >> a;
+	mBackgroundColor.setValues(r, g, b, a);
+
+	colorFile >> holder >> r >> g >> b >> a;
+	mTileColor.setValues(r, g, b, a);
+
+	colorFile >> holder >> r >> g >> b >> a;
+	mTextColor.setValues(r, g, b, a);
+
+	colorFile >> holder >> r >> g >> b >> a;
+	mBorderColor.setValues(r, g, b, a);
+
+	colorFile >> holder >> r >> g >> b >> a;
+	mHighlightColor.setValues(r, g, b, a);
+
+	colorFile >> holder >> r >> g >> b >> a;
+	mDefaultNumberColor.setValues(r, g, b, a);
+
+	colorFile >> holder >> r >> g >> b >> a;
+	mPlayerInputNumberColor.setValues(r, g, b, a);
+
+	colorFile >> holder >> r >> g >> b >> a;
+	mSameNumberColor.setValues(r, g, b, a);
+
+	colorFile >> holder >> r >> g >> b >> a;
+	mWrongInputColor.setValues(r, g, b, a);
+
+	colorFile >> holder >> r >> g >> b >> a;
+	mNoteUIColor.setValues(r, g, b, a);
+
+	colorFile.close();
+}
+
+// Get font data from file
+void Game::getFontData()
+{
+	ifstream fontFile(MAIN_FILE_PATH + FONT_DATA_FILE);
+	if (!fontFile.is_open())
+	{
+		cout << "Error getting Color file" << endl;
+	}
+	string holder;
+
+	fontFile >> holder >> mFontName
+		>> holder >> mMenuFontSize
+		>> holder >> mSmallMenuFontSize
+		>> holder >> mNumberFontSize
+		>> holder >> mNoteFontSize;
+
+	fontFile.close();
 }
 
 void Game::init()
@@ -117,35 +195,31 @@ void Game::init()
 	pEventSystem->addListener((EventType)OPEN_CLOSE_NOTES_EVENT, this);
 
 	//loading language
-	mMenuManager->loadData(FILE_PATH + MENU_TEXT_LOCATION);
-	mHUD->loadData(FILE_PATH + MENU_TEXT_LOCATION);
+	mMenuManager->loadData(MAIN_FILE_PATH + MENU_TEXT_FILE);
+	mHUD->loadData(MAIN_FILE_PATH + MENU_TEXT_FILE);
 
 	// Add sounds
-	mSoundManager->loadSample(mDeathIndex, ASSET_PATH + SOUND_ASSET_PATH + mDeathSound);
-	mSoundManager->loadSample(mGameOverIndex, ASSET_PATH + SOUND_ASSET_PATH + mGameOverSound);
-	mSoundManager->loadSample(mChangeSpriteIndex, ASSET_PATH + SOUND_ASSET_PATH + mChangeSpriteSound);
-	mSoundManager->loadSample(mSpawnIndex, ASSET_PATH + SOUND_ASSET_PATH + mSpawnSound);
+	mSoundManager->loadSample(mDeathIndex, ASSET_FILE_PATH + SOUND_ASSET_FILE_PATH + mDeathSound);
+	mSoundManager->loadSample(mGameOverIndex, ASSET_FILE_PATH + SOUND_ASSET_FILE_PATH + mGameOverSound);
+	mSoundManager->loadSample(mChangeSpriteIndex, ASSET_FILE_PATH + SOUND_ASSET_FILE_PATH + mChangeSpriteSound);
+	mSoundManager->loadSample(mSpawnIndex, ASSET_FILE_PATH + SOUND_ASSET_FILE_PATH + mSpawnSound);
 	mIsInitted = true;
 
 	// Adding to graphics buffer
-	Color black(0, 0, 0, 255);
-	Color gray(65, 65, 65, 255);
-	Color white(255, 255, 255, 255);
-	Color green(0, 255, 0, 255);
 	GraphicsBuffer* pBlackBuffer = new GraphicsBuffer(DISP_WIDTH, DISP_HEIGHT);
-	GraphicsBuffer* pTileBuffer = new GraphicsBuffer(gray, mTileSize, mTileSize);
+	GraphicsBuffer* pTileBuffer = new GraphicsBuffer(mTileColor, mTileSize, mTileSize);
 
 	// Buffers for the lines separating each box
-	GraphicsBuffer* pXSeparatorBuffer = new GraphicsBuffer(white, mGridSize * (mTileSize + TILE_PADDING) + TILE_PADDING, TILE_PADDING);
-	GraphicsBuffer* pYSeparatorBuffer = new GraphicsBuffer(white, TILE_PADDING, mGridSize * (mTileSize + TILE_PADDING) + TILE_PADDING);
+	GraphicsBuffer* pXSeparatorBuffer = new GraphicsBuffer(mBorderColor, mGridSize * (mTileSize + mTilePadding) + mTilePadding, mTilePadding);
+	GraphicsBuffer* pYSeparatorBuffer = new GraphicsBuffer(mBorderColor, mTilePadding, mGridSize * (mTileSize + mTilePadding) + mTilePadding);
 
 	// Buffers for a box highlighting the current tile clicked
-	GraphicsBuffer* pXHighlightBuffer = new GraphicsBuffer(green, mTileSize + (TILE_PADDING * 2), TILE_PADDING);
-	GraphicsBuffer* pYHighlightBuffer = new GraphicsBuffer(green, TILE_PADDING, mTileSize + (TILE_PADDING * 2));
+	GraphicsBuffer* pXHighlightBuffer = new GraphicsBuffer(mHighlightColor, mTileSize + (mTilePadding * 2), mTilePadding);
+	GraphicsBuffer* pYHighlightBuffer = new GraphicsBuffer(mHighlightColor, mTilePadding, mTileSize + (mTilePadding * 2));
 
 	assert(pBlackBuffer && pTileBuffer && pXSeparatorBuffer && pYSeparatorBuffer && pXHighlightBuffer && pYHighlightBuffer);
 
-	mGraphicsSystem->setBitmapToColor(*pBlackBuffer, black);
+	mGraphicsSystem->setBitmapToColor(*pBlackBuffer, mBackgroundColor);
 
 	int bufferIndex = 0;
 
@@ -166,7 +240,7 @@ void Game::init()
 	// Init grid
 	mGridManager->init(*mGraphicsBufferManager, mTileIndex);
 	// Init HUD
-	mHUD->init(*mGraphicsBufferManager, mTileIndex, mGridSize);
+	mHUD->init(*mGraphicsBufferManager, mTileIndex, mGridSize, mTilePadding);
 }
 
 // Delete game systems in opposite order of creation
@@ -195,7 +269,7 @@ void Game::doLoop()
 	srand((unsigned int)time(NULL));
 	
 	// Basic values for now, will adjust once other features start working
-	mGridManager->loadGrid(SUDOKU, mGridSize, DISP_WIDTH, DISP_HEIGHT);
+	mGridManager->loadGrid(SUDOKU, DISP_WIDTH, DISP_HEIGHT);
 
 	while (mIsLooping)
 	{
@@ -210,7 +284,7 @@ void Game::doLoop()
 			// If a menu is not open draw what is needed for the game
 			mInputSystem->updateEvents();
 			mGraphicsSystem->drawBackbuffer(Vector2D(0, 0), *mGraphicsBufferManager->getBuffer(mBackgroundIndex), 1.0);
-			mGridManager->draw(mBoxSizeX, mBoxSizeY, mXSeparatorIndex, mYSeparatorIndex, mTileIndex, mXHighlightIndex, mYHighlightIndex);
+			mGridManager->draw(mXSeparatorIndex, mYSeparatorIndex, mTileIndex, mXHighlightIndex, mYHighlightIndex);
 
 			mHUD->update(mSavedTime, mNotesOn); // adjust for when the notes are open or not
 			mGraphicsSystem->flip();

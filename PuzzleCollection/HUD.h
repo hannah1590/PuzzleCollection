@@ -16,7 +16,11 @@ public:
 	HUD(GraphicsSystem& graphicsSystem, int dispWidth, int dispHeight);
 	~HUD();
 
-	void init(GraphicsBufferManager& graphicsBufferManager, int tileIndex, int gridSize);
+	void init(GraphicsBufferManager& graphicsBufferManager, int tileIndex, int gridSize, float tilePadding);
+	
+	void loadColorData(Color& text, Color& tile, Color& note);
+	void loadFontData(string assetPath, string fontName, int menuFontSize, int noteFontSize);
+
 	void update(float savedTime, bool notes);
 	void pauseTimer();
 	void reset();
@@ -36,20 +40,29 @@ private:
 	int mTileIndex;
 
 	string mTimeText;
+	string mNotesText;
+
 	Timer mTimer;
 	float mTime;
+
 	int mGridSize;
 	int mTileSize;
+	float mTilePadding;
+
 	float mStartNumLoc;
 	Vector2D mNotesButtonLoc;
+	
 	bool mNotesOn;
 
 	int mDispWidth;
 	int mDispHeight;
 
-	const float PADDING = 6.0f; // Padding between tiles
-	const string ASSET_PATH = "..\\..\\PuzzleCollection\\libraries\\assets\\";
-	const string FONT_FILENAME = "cour.ttf";
-	const int FONT_SIZE = 50;
-	const int NOTE_FONT_SIZE = 30;
+	// Color variables
+	Color mTextColor;
+	Color mTileColor;
+	Color mNoteUIColor;
+
+	// Font variables
+	Font mMenuFont;
+	Font mNoteFont;
 };

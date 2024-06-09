@@ -9,9 +9,10 @@ HUD::HUD(GraphicsSystem& graphicsSystem, int dispWidth, int dispHeight)
 
 HUD::~HUD()
 {
+
 }
 
-void HUD::init(GraphicsBufferManager& graphicsBufferManager, int tileIndex, int gridSize)
+void HUD::init(GraphicsBufferManager& graphicsBufferManager, int tileIndex, int gridSize, float tilePadding)
 {
 	mGraphicsBufferManager = &graphicsBufferManager;
 	mTileIndex = tileIndex;
@@ -19,15 +20,29 @@ void HUD::init(GraphicsBufferManager& graphicsBufferManager, int tileIndex, int 
 	mTileSize = mGraphicsBufferManager->getBuffer(mTileIndex)->getSize().getX() * 1.2f;
 
 	// Start drawing position should have the buttons in a row centered in the middle
-	mStartNumLoc = (mDispWidth / 2) - ((mGridSize * (mTileSize + PADDING)) / 2);
+	mStartNumLoc = (mDispWidth / 2) - ((mGridSize * (mTileSize + tilePadding)) / 2);
+
 	// Note button location is to the right of the numbers
-	mNotesButtonLoc = Vector2D(mGridSize * (mTileSize + PADDING) + mStartNumLoc + (mTileSize / 2), mDispHeight - (mTileSize + PADDING));
+	mNotesButtonLoc = Vector2D(mGridSize * (mTileSize + tilePadding) + mStartNumLoc + (mTileSize / 2), mDispHeight - (mTileSize + tilePadding));
 
 	// Assign locations to each number tile
 	for (int i = 0; i < mGridSize; i++)
 	{
-		mNumMap[i] = Vector2D(i * (mTileSize + PADDING) + mStartNumLoc, mDispHeight - (mTileSize + PADDING));
+		mNumMap[i] = Vector2D(i * (mTileSize + tilePadding) + mStartNumLoc, mDispHeight - (mTileSize + tilePadding));
 	}
+}
+
+void HUD::loadColorData(Color& text, Color& tile, Color& note)
+{
+	mTextColor = text;
+	mTileColor = tile;
+	mNoteUIColor = note;
+}
+
+void HUD::loadFontData(string assetPath, string fontName, int menuFontSize, int noteFontSize)
+{
+	mMenuFont = Font(assetPath + fontName, menuFontSize);
+	mNoteFont = Font(assetPath + fontName, noteFontSize);
 }
 
 void HUD::update(float savedTime, bool notes)
@@ -45,31 +60,23 @@ void HUD::update(float savedTime, bool notes)
 
 void HUD::draw()
 {
-	Color lightGray(220, 220, 220, 255);
-	Color blueGray(140, 166, 250, 255);
-	Color gray(65, 65, 65, 255);
-	Font font(ASSET_PATH + FONT_FILENAME, FONT_SIZE);
-	Font noteFont(ASSET_PATH + FONT_FILENAME, NOTE_FONT_SIZE);
-
 	Vector2D timeLoc(500, 0);
-
 	string timeText = mTimeText + ": " + to_string(mTime);
-
-	mGraphicsSystem->writeTextToBackbuffer(timeLoc, font, lightGray, timeText, false);
+	mGraphicsSystem->writeTextToBackbuffer(timeLoc, mMenuFont, mTextColor, timeText, false);
 
 	// Draw each tile and the numbers on them
 	for (auto& i : mNumMap)
 	{
 		mGraphicsSystem->drawBackbuffer(i.second, *mGraphicsBufferManager->getBuffer(mTileIndex), 1.2f);
 		if(!mNotesOn)
-			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), font, lightGray, to_string(i.first + 1), true);
+			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), mMenuFont, mTextColor, to_string(i.first + 1), true);
 		else
-			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), font, blueGray, to_string(i.first + 1), true);
+			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), mMenuFont, mNoteUIColor, to_string(i.first + 1), true);
 	}
 
 	// Draw notes button
-	mGraphicsSystem->drawButtons(1, 0, mTileSize * 2, mNotesButtonLoc.getX(), mNotesButtonLoc.getY(), gray);
-	mGraphicsSystem->writeTextToBackbuffer(mNotesButtonLoc + Vector2D((mTileSize * 2.0f) / 2.0f, (mTileSize * 2.0f) / 8.0f), noteFont, lightGray, "Notes", true);
+	mGraphicsSystem->drawButtons(1, 0, mTileSize * 2, mNotesButtonLoc.getX(), mNotesButtonLoc.getY(), mTileColor);
+	mGraphicsSystem->writeTextToBackbuffer(mNotesButtonLoc + Vector2D((mTileSize * 2.0f) / 2.0f, (mTileSize * 2.0f) / 8.0f), mNoteFont, mTextColor, mNotesText, true);
 }
 
 int HUD::checkInput(Vector2D loc)
@@ -79,6 +86,7 @@ int HUD::checkInput(Vector2D loc)
 	float x = loc.getX();
 	float y = loc.getY();
 
+	// Check if cursor is in the bounds of the notes button
 	if (x >= mNotesButtonLoc.getX() && x <= mNotesButtonLoc.getX() + mTileSize * 2)
 	{
 		if (y >= mNotesButtonLoc.getY() && y <= mDispWidth)
@@ -89,6 +97,7 @@ int HUD::checkInput(Vector2D loc)
 	}
 	else
 	{
+		// Check if cursor is in the bounds of a number tile
 		for (auto& i : mNumMap)
 		{
 			if (x >= i.second.getX() && x <= i.second.getX() + mTileSize)
@@ -125,7 +134,7 @@ void HUD::loadData(string& filename)
 		data >> currentString;
 		if (currentString == "HUD")
 		{
-			data >> mTimeText;
+			data >> mTimeText >> mNotesText;
 		}
 	}
 }

@@ -1,0 +1,11 @@
+Purpose                   R   G   B   A
+BackgroundColor            0   0   0 255
+TileColor                 65  65  65 255
+TextColor                255 255 255 255
+BorderColor              255 255 255 255
+HighlightColor             0 255   0 255
+DefaultNumberColor       255 255 255 255
+PlayerInputNumberColor    68 135 242 255
+SameNumberColor            0 255   0 255
+WrongInputColor          255   0   0 255
+NoteUIColor              140 166 250 255
