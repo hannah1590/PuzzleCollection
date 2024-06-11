@@ -24,6 +24,7 @@ public:
 	bool getIsMenuOpen() { return mIsMenuOpen; }
 	int getCurrentMenu() { return mCurrentMenu; }
 	int getCurrentDifficulty() { return mCurrentDifficulty; }
+	int getCurrentGridSize() { return mCurrentGridSize; }
 
 	void draw();
 	void toggleMenu();
@@ -39,9 +40,11 @@ private:
 	GraphicsSystem* mGraphicsSystem;
 	bool mShouldQuit;
 	bool mIsMenuOpen;
+	bool mIsSoundOn;
 
 	int mCurrentMenu;
 	int mCurrentDifficulty;
+	int mCurrentGridSize;
 
 	map<string, string> mTextMap;
 
@@ -49,7 +52,9 @@ private:
 	Color mTextColor;
 
 	// Font variables
-	Font mMenuFont;
-	Font mSmallMenuFont;
+	string mAssetPath; 
+	string mFontName;
+	int mMenuFontSize;
+	int mSmallMenuFontSize;
 	int mTextBuffer;
 };

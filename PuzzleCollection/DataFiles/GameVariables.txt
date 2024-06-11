@@ -2,6 +2,6 @@ GridSize          9
 BoxSizeX          3
 BoxSizeY          3
 TileSize         45
-PercentRemoved   40
+PercentRemoved   60
 TilePadding       5
 NotePadding      15

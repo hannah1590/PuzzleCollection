@@ -1,13 +1,7 @@
 #include "GridFiller.h";
-GridFiller::GridFiller(int size, int boxX, int boxY)
+GridFiller::GridFiller()
 {
-    mSize = size;
-    mBoxSizeX = boxX;
-    mBoxSizeY = boxY;
-
-    initGrid();
-    //fillGrid();
-    //printGrid();
+    //initGrid();
 }
 
 // Clears grid
@@ -22,8 +16,12 @@ GridFiller::~GridFiller()
 }
 
 // Fills grid with 0s
-void GridFiller::initGrid()
+void GridFiller::initGrid(int size, int boxX, int boxY)
 {
+    mSize = size;
+    mBoxSizeX = boxX;
+    mBoxSizeY = boxY;
+
     for (int i = 0; i < mSize; i++)
     {
         mNums.push_back(i + 1); // Fills the nums vector with all available number options

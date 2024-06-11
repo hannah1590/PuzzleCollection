@@ -9,6 +9,7 @@ MenuManager::MenuManager(GraphicsSystem& graphicsSystem)
 	mIsMenuOpen = true;
 	mCurrentMenu = 0;
 	mCurrentDifficulty = 1;
+	mCurrentGridSize = 0;
 }
 
 MenuManager::~MenuManager()
@@ -22,13 +23,17 @@ void MenuManager::loadColorData(Color& text)
 
 void MenuManager::loadFontData(string assetPath, string fontName, int menuFontSize, int smallMenuFontSize)
 {
-	mMenuFont = Font(assetPath + fontName, menuFontSize);
-	mSmallMenuFont = Font(assetPath + fontName, smallMenuFontSize);
+	mAssetPath = assetPath;
+	mFontName = fontName;
+	mMenuFontSize = menuFontSize;
+	mSmallMenuFontSize = smallMenuFontSize;
 	mTextBuffer = menuFontSize + 20;
 }
 
 void MenuManager::draw()
 {
+	Font menuFont(mAssetPath + mFontName, mMenuFontSize);
+	Font smallMenuFont(mAssetPath + mFontName, mSmallMenuFontSize);
 	if (mIsMenuOpen)
 	{
 		if (mCurrentMenu == 0)
@@ -41,11 +46,11 @@ void MenuManager::draw()
 			string text4 = mTextMap["Menu0_4"]; //OPTIONS
 			string text5 = mTextMap["Menu0_5"]; //QUIT
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, mMenuFont, mTextColor, text1, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + mTextBuffer), mMenuFont, mTextColor, text2, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 2)), mMenuFont, mTextColor, text3, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 3)), mMenuFont, mTextColor, text4, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 4)), mMenuFont, mTextColor, text5, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, menuFont, mTextColor, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + mTextBuffer), menuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 2)), menuFont, mTextColor, text3, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 3)), menuFont, mTextColor, text4, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 4)), menuFont, mTextColor, text5, false);
 			mGraphicsSystem->drawButtons(4, 70, 40, 250, 180, mTextColor);
 		}
 
@@ -59,9 +64,9 @@ void MenuManager::draw()
 			string text2 = mTextMap["Menu1_2"];
 			string text3 = mTextMap["Menu1_3"];
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, mMenuFont, mTextColor, text1, false);
-			mGraphicsSystem->writeTextToBackbuffer(loc2, mSmallMenuFont, mTextColor, text2, false);
-			mGraphicsSystem->writeTextToBackbuffer(loc3, mSmallMenuFont, mTextColor, text3, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, menuFont, mTextColor, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc2, smallMenuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc3, smallMenuFont, mTextColor, text3, false);
 		}
 
 		if (mCurrentMenu == 2)
@@ -72,8 +77,8 @@ void MenuManager::draw()
 			string text1 = mTextMap["Menu2_1"];
 			string text2 = mTextMap["Menu2_2"];
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, mMenuFont, mTextColor, text1, false);
-			mGraphicsSystem->writeTextToBackbuffer(loc2, mSmallMenuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, menuFont, mTextColor, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc2, smallMenuFont, mTextColor, text2, false);
 		}
 
 		if (mCurrentMenu == 3)
@@ -82,15 +87,15 @@ void MenuManager::draw()
 			Vector2D loc1(300, 100);
 			string text1 = mTextMap["Menu3_1"];
 			string text2 = mTextMap["Menu3_2"]; //DIFFICULTY
-			string text3 = mTextMap["Menu3_3"]; //SOUND
-			string text4 = "In progress";
-			string text5 = mTextMap["Menu3_4"]; //BACK
+			string text3 = mTextMap["Menu3_3"]; //GRID SIZE
+			string text4 = mTextMap["Menu3_4"]; //SOUND
+			string text5 = mTextMap["Menu3_5"]; //BACK
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, mMenuFont, mTextColor, text1, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + mTextBuffer), mMenuFont, mTextColor, text2, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 2)), mMenuFont, mTextColor, text3, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 3)), mMenuFont, mTextColor, text4, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 4)), mMenuFont, mTextColor, text5, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, menuFont, mTextColor, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + mTextBuffer), menuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 2)), menuFont, mTextColor, text3, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 3)), menuFont, mTextColor, text4, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 4)), menuFont, mTextColor, text5, false);
 			mGraphicsSystem->drawButtons(4, 70, 40, 250, 180, mTextColor);
 		}
 
@@ -108,12 +113,50 @@ void MenuManager::draw()
 			if (mCurrentDifficulty == 1) { text1 = mTextMap["Menu4_1"] + text3; }
 			if (mCurrentDifficulty == 2) { text1 = mTextMap["Menu4_1"] + text4; }
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, mMenuFont, mTextColor, text1, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + mTextBuffer), mMenuFont, mTextColor, text2, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 2)), mMenuFont, mTextColor, text3, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 3)), mMenuFont, mTextColor, text4, false);
-			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 4)), mMenuFont, mTextColor, text5, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc1 - Vector2D(50), menuFont, mTextColor, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + mTextBuffer), menuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 2)), menuFont, mTextColor, text3, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 3)), menuFont, mTextColor, text4, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 4)), menuFont, mTextColor, text5, false);
 			mGraphicsSystem->drawButtons(4, 70, 40, 250, 180, mTextColor);
+		}
+
+		if (mCurrentMenu == 5)
+		{
+			//Grid Size Menu
+			Vector2D loc1(300, 100);
+			string text1;
+			string text2 = mTextMap["Menu5_2"]; //9x9
+			string text3 = mTextMap["Menu5_3"]; //6x6
+			string text4 = mTextMap["Menu5_4"]; //BACK
+
+			if (mCurrentGridSize == 0) { text1 = mTextMap["Menu5_1"] + text2; }
+			if (mCurrentGridSize == 1) { text1 = mTextMap["Menu5_1"] + text3; }
+
+			mGraphicsSystem->writeTextToBackbuffer(loc1 - Vector2D(50), menuFont, mTextColor, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + mTextBuffer), menuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 2)), menuFont, mTextColor, text3, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 3)), menuFont, mTextColor, text4, false);
+			mGraphicsSystem->drawButtons(3, 70, 40, 250, 180, mTextColor);
+		}
+
+		if (mCurrentMenu == 6)
+		{
+			// Sound Menu
+			Vector2D loc1(300, 100);
+			string text1;
+			string text2 = mTextMap["Menu6_2"]; //ON
+			string text3 = mTextMap["Menu6_3"]; //OFF
+			string text4 = mTextMap["Menu6_4"]; //BACK
+
+			if (mIsSoundOn) { text1 = mTextMap["Menu6_1"] + text2; }
+			if (!mIsSoundOn) { text1 = mTextMap["Menu6_1"] + text3; }
+
+			mGraphicsSystem->writeTextToBackbuffer(loc1 - Vector2D(50), menuFont, mTextColor, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + mTextBuffer), menuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 2)), menuFont, mTextColor, text3, false);
+			mGraphicsSystem->writeTextToBackbuffer(Vector2D(loc1.getX(), loc1.getY() + (mTextBuffer * 3)), menuFont, mTextColor, text4, false);
+			mGraphicsSystem->drawButtons(3, 70, 40, 250, 180, mTextColor);
 		}
 
 		if (mCurrentMenu == 7)
@@ -124,8 +167,8 @@ void MenuManager::draw()
 			string text1 = mTextMap["Menu7_1"];
 			string text2 = mTextMap["Menu7_2"];
 
-			mGraphicsSystem->writeTextToBackbuffer(loc1, mMenuFont, mTextColor, text1, false);
-			mGraphicsSystem->writeTextToBackbuffer(loc2, mSmallMenuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc1, menuFont, mTextColor, text1, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc2, smallMenuFont, mTextColor, text2, false);
 		}
 	}
 }
@@ -204,13 +247,13 @@ void MenuManager::checkInput(Vector2D loc)
 
 			if (loc.getY() > y1 + spacing && loc.getY() < y2 + spacing)
 			{
-				//SOUND
+				//GRID SIZE
 				mCurrentMenu = 5;
 			}
 
 			if (loc.getY() > y1 + (spacing * 2) && loc.getY() < y2 + (spacing * 2))
 			{
-				//LANGUAGE
+				//SOUND
 				mCurrentMenu = 6;
 			}
 
@@ -261,6 +304,64 @@ void MenuManager::checkInput(Vector2D loc)
 		}
 		return;
 	}
+
+	//GRID SIZE MENU
+	if (mCurrentMenu == 5)
+	{
+		if (loc.getX() > 250 && loc.getX() < 290)
+		{
+			if (loc.getY() > y1 && loc.getY() < y2)
+			{
+				//9x9
+				mCurrentGridSize = 0;
+				GameEvent gameEvent(CHANGE_GRID_SIZE_EVENT);
+				pEventSystem->fireEvent(gameEvent);
+			}
+
+			if (loc.getY() > y1 + spacing && loc.getY() < y2 + spacing)
+			{
+				//6x6
+				mCurrentGridSize = 1;
+				GameEvent gameEvent(CHANGE_GRID_SIZE_EVENT);
+				pEventSystem->fireEvent(gameEvent);
+			}
+			if (loc.getY() > y1 + (spacing * 2) && loc.getY() < y2 + (spacing * 2))
+			{
+				//BACK
+				mCurrentMenu = 3;
+			}
+		}
+		return;
+	}
+
+	//SOUND MENU
+	if (mCurrentMenu == 6)
+	{
+		if (loc.getX() > 250 && loc.getX() < 290)
+		{
+			if (loc.getY() > y1 && loc.getY() < y2)
+			{
+				//ON
+				mIsSoundOn = true;
+				GameEvent gameEvent(START_SOUND_EVENT);
+				pEventSystem->fireEvent(gameEvent);
+			}
+
+			if (loc.getY() > y1 + spacing && loc.getY() < y2 + spacing)
+			{
+				//OFF
+				mIsSoundOn = false;
+				GameEvent gameEvent(STOP_SOUND_EVENT);
+				pEventSystem->fireEvent(gameEvent);
+			}
+			if (loc.getY() > y1 + (spacing * 2) && loc.getY() < y2 + (spacing * 2))
+			{
+				//BACK
+				mCurrentMenu = 3;
+			}
+		}
+		return;
+	}
 }
 
 void MenuManager::loadData(string& filename)
@@ -270,6 +371,7 @@ void MenuManager::loadData(string& filename)
 	string currentString;
 	int amount;
 
+	//MAIN MENU
 	data >> amount;
 	for (int i = 1; i < amount + 1; i++)
 	{
@@ -278,6 +380,7 @@ void MenuManager::loadData(string& filename)
 		mTextMap[menuKey] = currentString;
 	}
 
+	//PAUSE MENU
 	data >> amount;
 	for (int i = 1; i < amount + 1; i++)
 	{
@@ -286,6 +389,7 @@ void MenuManager::loadData(string& filename)
 		mTextMap[menuKey] = currentString;
 	}
 
+	//GAME OVER MENU
 	data >> amount;
 	for (int i = 1; i < amount + 1; i++)
 	{
@@ -294,14 +398,16 @@ void MenuManager::loadData(string& filename)
 		mTextMap[menuKey] = currentString;
 	}
 
+	//OPTIONS MENU
 	data >> amount;
 	for (int i = 1; i < amount + 1; i++)
 	{
 		string menuKey = "Menu3_" + to_string(i);
-		data >> currentString;
+		getline(data, currentString, ',');
 		mTextMap[menuKey] = currentString;
 	}
 
+	//DIFFICULTY MENU
 	data >> amount;
 	for (int i = 1; i < amount + 1; i++)
 	{
@@ -310,19 +416,30 @@ void MenuManager::loadData(string& filename)
 		mTextMap[menuKey] = currentString;
 	}
 
+	//GRID SIZE MENU
 	data >> amount;
 	for (int i = 1; i < amount + 1; i++)
 	{
 		string menuKey = "Menu5_" + to_string(i);
-		data >> currentString;
+		getline(data, currentString, ',');
 		mTextMap[menuKey] = currentString;
 	}
 
+	//SOUND MENU
 	data >> amount;
 	for (int i = 1; i < amount + 1; i++)
 	{
 		string menuKey = "Menu6_" + to_string(i);
 		data >> currentString;
+		mTextMap[menuKey] = currentString;
+	}
+
+	//WIN SCREEN
+	data >> amount;
+	for (int i = 1; i < amount + 1; i++)
+	{
+		string menuKey = "Menu7_" + to_string(i);
+		getline(data, currentString, ',');
 		mTextMap[menuKey] = currentString;
 	}
 }

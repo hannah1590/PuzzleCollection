@@ -39,7 +39,6 @@ public:
 	void save();
 	void loadSave();
 	void getVariables();
-	void getSounds();
 	void getColors();
 	void getFontData();
 
@@ -87,7 +86,6 @@ private:
 	// File paths
 	const string MAIN_FILE_PATH = "..\\..\\PuzzleCollection\\PuzzleCollection\\DataFiles\\";
 	const string ASSET_FILE_PATH = "..\\..\\PuzzleCollection\\libraries\\assets\\";
-	const string SOUND_ASSET_FILE_PATH = "minetrap\\";
 
 	// File names
 	const string GAME_VARIABLES_FILE = "GameVariables.txt";
@@ -123,10 +121,10 @@ private:
 	int mNoteFontSize;
 
 	// Index for each sound effect
-	int mDeathIndex = 0;
-	int mGameOverIndex = 1;
-	int mChangeSpriteIndex = 2;
-	int mSpawnIndex = 3;
+	int mFruitCollectIndex = 0;
+	int mNextLevelIndex = 1;
+	int mGameOverIndex = 2;
+	int mMusicIndex = 3;
 
 	// Buffer Indices
 	int mBackgroundIndex;

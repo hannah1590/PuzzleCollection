@@ -9,10 +9,10 @@ using namespace std;
 class GridFiller : public Trackable
 {
 public:
-	GridFiller(int size, int boxX, int boxY);
+	GridFiller();
 	~GridFiller();
 
-	void initGrid();
+	void initGrid(int size, int boxX, int boxY);
 	void fillGrid();
 	void printGrid(); // for debug purposes
 

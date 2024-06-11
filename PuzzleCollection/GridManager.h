@@ -36,6 +36,7 @@ public:
 
 	void changeValue(int value);
 	void addNote(int value) { mHighlightTile->turnOnOffNote(value); }
+	void removeNotes();
 private:
 	map <int, Tile*> mGridMap;
 	GraphicsSystem* mGraphicsSystem;
@@ -64,6 +65,8 @@ private:
 	Color mWrongInputColor;
 
 	// Font variables
-	Font mNumberFont;
-	Font mNotesFont;
+	string mAssetPath;
+	string mFontName;
+	int mNumberFontSize;
+	int mNoteFontSize;
 };

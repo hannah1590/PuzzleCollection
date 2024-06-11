@@ -19,7 +19,7 @@ public:
 	void init(GraphicsBufferManager& graphicsBufferManager, int tileIndex, int gridSize, float tilePadding);
 	
 	void loadColorData(Color& text, Color& tile, Color& note);
-	void loadFontData(string assetPath, string fontName, int menuFontSize, int noteFontSize);
+	void loadFontData(string assetPath, string fontName, int menuFontSize, int numberFontSize);
 
 	void update(float savedTime, bool notes);
 	void pauseTimer();
@@ -63,6 +63,8 @@ private:
 	Color mNoteUIColor;
 
 	// Font variables
-	Font mMenuFont;
-	Font mNoteFont;
+	string mAssetPath;
+	string mFontName;
+	int mMenuFontSize;
+	int mNumberFontSize;
 };

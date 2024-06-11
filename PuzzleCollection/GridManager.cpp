@@ -35,16 +35,17 @@ void GridManager::loadColorData(Color& default, Color& playerInput, Color& sameN
 	mWrongInputColor = wrong;
 }
 
-void GridManager::loadFontData(string assetPath, string fontName, int mNumberFontSize, int noteFontSize)
+void GridManager::loadFontData(string assetPath, string fontName, int numberFontSize, int noteFontSize)
 {
-	mNumberFont = Font(assetPath + fontName, mNumberFontSize);
-	mNotesFont = Font(assetPath + fontName, noteFontSize);
+	mAssetPath = assetPath;
+	mFontName = fontName;
+	mNumberFontSize = numberFontSize;
+	mNoteFontSize = noteFontSize;
 }
 
 void GridManager::loadGrid(GridType gridType, int dispWidth, int dispHeight)
 {
 	mCurrentGrid = gridType;
-	mGridSize = mGridSize;
 
 	// Centers the grid
 	float startPosX = (dispWidth / 2) - ((mGridSize * (mTileSize + mTilePadding)) / 2);
@@ -65,7 +66,7 @@ void GridManager::loadGrid(GridType gridType, int dispWidth, int dispHeight)
 				// Load tile data
 				tile->init(*mGraphicsSystem, *mGraphicsBufferManager, mTilePadding);
 				tile->loadColorData(mDefaultNumberColor, mPlayerInputColor, mSameNumberColor, mWrongInputColor);
-				tile->loadFontData(mNumberFont, mNotesFont);
+				tile->loadFontData(mAssetPath, mFontName, mNumberFontSize, mNoteFontSize);
 				
 				// Gets a number between 100 and 1
 				int isRemoved = rand() % 100 + 1;
@@ -97,8 +98,8 @@ void GridManager::draw(int xSeparatorIndex, int ySeparatorIndex, int tileIndex, 
 	// Draw lines on the x-axis between each box
 	for (int i = 0; i < mGridSize / mBoxSizeY; i++)
 	{
-		// Finds location by getting the first tile in each column and then subtracting the padding so the line is drawn inbetween
-		loc = mGridMap[(i * (mGridSize / mBoxSizeY)) * mGridSize]->getPos() - Vector2D(mTilePadding, mTilePadding);
+		// Finds location by getting the first tile in each row and then subtracting the padding so the line is drawn inbetween
+		loc = mGridMap[i * mGridSize * mBoxSizeY]->getPos() - Vector2D(mTilePadding, mTilePadding);
 		mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(xSeparatorIndex), 1.0f);
 	}
 	// Line at bottom of grid
@@ -108,8 +109,8 @@ void GridManager::draw(int xSeparatorIndex, int ySeparatorIndex, int tileIndex, 
 	// Draw lines on the y-axis between each box
 	for (int i = 0; i < mGridSize / mBoxSizeX; i++)
 	{
-		// Finds location by getting the first tile in each row and then subtracting the padding so the line is drawn inbetween
-		loc = mGridMap[i * (mGridSize / mBoxSizeX)]->getPos() - Vector2D(mTilePadding, mTilePadding);
+		// Finds location by getting the first tile in each column and then subtracting the padding so the line is drawn inbetween
+		loc = mGridMap[i * (mGridSize / mBoxSizeY)]->getPos() - Vector2D(mTilePadding, mTilePadding);
 		mGraphicsSystem->drawBackbuffer(loc, *mGraphicsBufferManager->getBuffer(ySeparatorIndex), 1.0f);
 	}
 	// Line at far right of grid
@@ -194,8 +195,49 @@ void GridManager::changeValue(int value)
 			
 		// Sets tile equal to value unless it is already equal, then set to 0
 		if (value != mHighlightTile->getValue())
+		{
 			mHighlightTile->changeValue(value);
+			removeNotes();
+		}
 		else
 			mHighlightTile->changeValue(0);
+	}
+}
+
+void GridManager::removeNotes()
+{
+	int num = mHighlightTile->getValue();
+	Vector2D pos = mHighlightTile->getGridPos();
+	int x = pos.getX();
+	int y = pos.getY();
+
+	// Check through row
+	for (int i = 0; i < mGridSize; i++)
+	{
+		if (mGridMap[y * mGridSize + i]->getNoteValue(num))
+		{
+			mGridMap[y * mGridSize + i]->turnOnOffNote(num);
+		}
+	}
+
+	// Check through column
+	for (int i = 0; i < mGridSize; i++)
+	{
+		if (mGridMap[i * mGridSize + x]->getNoteValue(num))
+		{
+			mGridMap[i * mGridSize + x]->turnOnOffNote(num);
+		}
+	}
+
+	// Check through whole box
+	for (int i = y - (y % mBoxSizeY); i <= (y - (y % mBoxSizeY)) + (mBoxSizeY - 1); i++)
+	{
+		for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++)
+		{
+			if (mGridMap[i * mGridSize + j]->getNoteValue(num))
+			{
+				mGridMap[i * mGridSize + j]->turnOnOffNote(num);
+			}
+		}
 	}
 }

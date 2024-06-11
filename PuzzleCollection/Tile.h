@@ -18,7 +18,7 @@ public:
 	void init(GraphicsSystem& graphicsSystem, GraphicsBufferManager& graphicsBufferManager, float tilePadding);
 
 	void loadColorData(Color& default, Color& playerInput, Color& sameNumber, Color& wrong);
-	void loadFontData(Font& numberFont, Font& notesFont);
+	void loadFontData(string assetPath, string fontName, int numberFontSize, int noteFontSize);
 
 	Vector2D getPos() { return mPosition; }
 	Vector2D getGridPos() { return mGridPos; }
@@ -33,6 +33,8 @@ public:
 	void setDefault(); 
 
 	void turnOnOffNote(int value);
+	bool getNoteValue(int noteNum) { return mNotes[noteNum - 1]; }
+
 	void draw(int bufferIndex);
 private:
 	GraphicsSystem* mGraphicsSystem;
@@ -58,7 +60,9 @@ private:
 	Color mOriginalColor;
 
 	// Font variables
-	Font mNumberFont;
-	Font mNotesFont;
+	string mAssetPath;
+	string mFontName;
+	int mNumberFontSize;
+	int mNoteFontSize;
 	const float NOTE_SPACING = 15.0f;
 };

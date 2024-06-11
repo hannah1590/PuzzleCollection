@@ -11,9 +11,6 @@ Tile::Tile(Vector2D pos, Vector2D gridPos, int gridSize)
 	{
 		mNotes[i] = false;
 	}	
-
-	mCurrentColor = mPlayerInputColor;
-	mOriginalColor = mCurrentColor;
 }
 
 Tile::~Tile()
@@ -34,12 +31,17 @@ void Tile::loadColorData(Color& default, Color& playerInput, Color& sameNumber, 
 	mPlayerInputColor = playerInput;
 	mSameNumberColor = sameNumber;
 	mWrongNumberColor = wrong;
+
+	mCurrentColor = mPlayerInputColor;
+	mOriginalColor = mCurrentColor;
 }
 
-void Tile::loadFontData(Font& numberFont, Font& notesFont)
+void Tile::loadFontData(string assetPath, string fontName, int numberFontSize, int noteFontSize)
 {
-	mNumberFont = numberFont;
-	mNotesFont = notesFont;
+	mAssetPath = assetPath;
+	mFontName = fontName;
+	mNumberFontSize = numberFontSize;
+	mNoteFontSize = noteFontSize;
 }
 
 void Tile::setDefault()
@@ -57,12 +59,17 @@ void Tile::turnOnOffNote(int value)
 
 void Tile::changeFontColor(Color& color)
 {
-	if (!mIsWrong)
+	if (color == mDefaultNumberColor)
+		mCurrentColor = mOriginalColor;
+	else
 		mCurrentColor = color;
 }
 
 void Tile::draw(int bufferIndex)
 {
+	Font numberFont(mAssetPath + mFontName, mNumberFontSize);
+	Font notesFont(mAssetPath + mFontName, mNoteFontSize);
+
 	GraphicsBuffer* graphicsBuffer = mGraphicsBufferManager->getBuffer(bufferIndex);
 
 	// Draws tile
@@ -78,12 +85,12 @@ void Tile::draw(int bufferIndex)
 			{
 				// Draws note inside the tile
 				Vector2D noteLoc = mPosition + Vector2D(i.first % 3 * NOTE_SPACING + mTilePadding, i.first / 3 * NOTE_SPACING);
-				mGraphicsSystem->writeTextToBackbuffer(noteLoc, mNotesFont, mDefaultNumberColor, to_string(i.first + 1), true);
+				mGraphicsSystem->writeTextToBackbuffer(noteLoc, notesFont, mDefaultNumberColor, to_string(i.first + 1), true);
 			}
 		}
 	}
 	else
 	{
-		mGraphicsSystem->writeTextToBackbuffer(mPosition + Vector2D(graphicsBuffer->getSize().getX() / 2.0f, mTilePadding), mNumberFont, mCurrentColor, to_string(mValue), true);
+		mGraphicsSystem->writeTextToBackbuffer(mPosition + Vector2D(graphicsBuffer->getSize().getX() / 2.0f, mTilePadding), numberFont, mCurrentColor, to_string(mValue), true);
 	}
 }

@@ -39,10 +39,12 @@ void HUD::loadColorData(Color& text, Color& tile, Color& note)
 	mNoteUIColor = note;
 }
 
-void HUD::loadFontData(string assetPath, string fontName, int menuFontSize, int noteFontSize)
+void HUD::loadFontData(string assetPath, string fontName, int menuFontSize, int numberFontSize)
 {
-	mMenuFont = Font(assetPath + fontName, menuFontSize);
-	mNoteFont = Font(assetPath + fontName, noteFontSize);
+	mAssetPath = assetPath;
+	mFontName = fontName;
+	mMenuFontSize = menuFontSize;
+	mNumberFontSize = numberFontSize;
 }
 
 void HUD::update(float savedTime, bool notes)
@@ -60,23 +62,26 @@ void HUD::update(float savedTime, bool notes)
 
 void HUD::draw()
 {
+	Font menuFont(mAssetPath + mFontName, mMenuFontSize);
+	Font noteFont(mAssetPath + mFontName, mNumberFontSize);
+
 	Vector2D timeLoc(500, 0);
 	string timeText = mTimeText + ": " + to_string(mTime);
-	mGraphicsSystem->writeTextToBackbuffer(timeLoc, mMenuFont, mTextColor, timeText, false);
+	mGraphicsSystem->writeTextToBackbuffer(timeLoc, menuFont, mTextColor, timeText, false);
 
 	// Draw each tile and the numbers on them
 	for (auto& i : mNumMap)
 	{
 		mGraphicsSystem->drawBackbuffer(i.second, *mGraphicsBufferManager->getBuffer(mTileIndex), 1.2f);
 		if(!mNotesOn)
-			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), mMenuFont, mTextColor, to_string(i.first + 1), true);
+			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), menuFont, mTextColor, to_string(i.first + 1), true);
 		else
-			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), mMenuFont, mNoteUIColor, to_string(i.first + 1), true);
+			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), menuFont, mNoteUIColor, to_string(i.first + 1), true);
 	}
 
 	// Draw notes button
 	mGraphicsSystem->drawButtons(1, 0, mTileSize * 2, mNotesButtonLoc.getX(), mNotesButtonLoc.getY(), mTileColor);
-	mGraphicsSystem->writeTextToBackbuffer(mNotesButtonLoc + Vector2D((mTileSize * 2.0f) / 2.0f, (mTileSize * 2.0f) / 8.0f), mNoteFont, mTextColor, mNotesText, true);
+	mGraphicsSystem->writeTextToBackbuffer(mNotesButtonLoc + Vector2D((mTileSize * 2.0f) / 2.0f, (mTileSize * 2.0f) / 8.0f), noteFont, mTextColor, mNotesText, true);
 }
 
 int HUD::checkInput(Vector2D loc)

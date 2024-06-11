@@ -5,7 +5,6 @@ Game* Game::mspInstance = nullptr;
 Game::Game()
 {
 	getVariables();
-	getSounds();
 	getColors();
 	getFontData();
 
@@ -16,13 +15,13 @@ Game::Game()
 	mUnitManager = new UnitManager;
 	mInputTranslator = new InputTranslator;
 	mHUD = new HUD(*mGraphicsSystem, DISP_WIDTH, DISP_HEIGHT);
-	mSoundManager = new SoundManager(mMaxSamples);
+	mSoundManager = new SoundManager();
 	mMenuManager = new MenuManager(*mGraphicsSystem);
-	mGridFiller = new GridFiller(mGridSize, mBoxSizeX, mBoxSizeY); 
+	mGridFiller = new GridFiller(); 
 	mGridManager = new GridManager(*mGraphicsSystem, *mGridFiller);
 
 	mHUD->loadColorData(mTextColor, mTileColor, mNoteUIColor);
-	mHUD->loadFontData(ASSET_FILE_PATH, mFontName, mMenuFontSize, mNoteFontSize);
+	mHUD->loadFontData(ASSET_FILE_PATH, mFontName, mMenuFontSize, mNumberFontSize);
 
 	mMenuManager->loadColorData(mTextColor);
 	mMenuManager->loadFontData(ASSET_FILE_PATH, mFontName, mMenuFontSize, mSmallMenuFontSize);
@@ -70,22 +69,6 @@ void Game::getVariables()
 		>> holder >> mTilePadding
 		>> holder >> mNotePadding;
 	gameVariables.close();
-}
-
-// Initialize sound wavs from file
-void Game::getSounds()
-{
-	ifstream soundFiles(MAIN_FILE_PATH + SOUND_LIST_FILE);
-	if (!soundFiles.is_open())
-	{
-		cout << "Error getting SoundEffects file" << endl;
-	}
-	getline(soundFiles, mDeathSound);
-	getline(soundFiles, mGameOverSound);
-	getline(soundFiles, mChangeSpriteSound);
-	getline(soundFiles, mSpawnSound);
-	soundFiles >> mMaxSamples;
-	soundFiles.close();
 }
 
 // Get color variables from file
@@ -170,7 +153,7 @@ void Game::init()
 	}
 
 	// No need to pause since sound isn't game breaking
-	if (!mSoundManager->init())
+	if (!mSoundManager->init(MAIN_FILE_PATH + SOUND_LIST_FILE, ASSET_FILE_PATH + ""))
 	{
 		cout << "ERROR - Sound init failed\n";
 	}
@@ -193,16 +176,12 @@ void Game::init()
 	pEventSystem->addListener((EventType)STOP_SOUND_EVENT, this);
 	pEventSystem->addListener((EventType)START_SOUND_EVENT, this);
 	pEventSystem->addListener((EventType)OPEN_CLOSE_NOTES_EVENT, this);
+	pEventSystem->addListener((EventType)CHANGE_GRID_SIZE_EVENT, this);
 
-	//loading language
+	// Loading Menu/HUD text
 	mMenuManager->loadData(MAIN_FILE_PATH + MENU_TEXT_FILE);
 	mHUD->loadData(MAIN_FILE_PATH + MENU_TEXT_FILE);
 
-	// Add sounds
-	mSoundManager->loadSample(mDeathIndex, ASSET_FILE_PATH + SOUND_ASSET_FILE_PATH + mDeathSound);
-	mSoundManager->loadSample(mGameOverIndex, ASSET_FILE_PATH + SOUND_ASSET_FILE_PATH + mGameOverSound);
-	mSoundManager->loadSample(mChangeSpriteIndex, ASSET_FILE_PATH + SOUND_ASSET_FILE_PATH + mChangeSpriteSound);
-	mSoundManager->loadSample(mSpawnIndex, ASSET_FILE_PATH + SOUND_ASSET_FILE_PATH + mSpawnSound);
 	mIsInitted = true;
 
 	// Adding to graphics buffer
@@ -237,7 +216,11 @@ void Game::init()
 	mGraphicsBufferManager->addBuffer(bufferIndex, *pYHighlightBuffer);
 	mYHighlightIndex = bufferIndex; bufferIndex++;
 
+	// BGM
+	mSoundManager->playSample(true, mMusicIndex);
+
 	// Init grid
+	mGridFiller->initGrid(mGridSize, mBoxSizeX, mBoxSizeY);
 	mGridManager->init(*mGraphicsBufferManager, mTileIndex);
 	// Init HUD
 	mHUD->init(*mGraphicsBufferManager, mTileIndex, mGridSize, mTilePadding);
@@ -268,7 +251,7 @@ void Game::doLoop()
 	// For grid
 	srand((unsigned int)time(NULL));
 	
-	// Basic values for now, will adjust once other features start working
+	// Load up grid
 	mGridManager->loadGrid(SUDOKU, DISP_WIDTH, DISP_HEIGHT);
 
 	while (mIsLooping)
@@ -312,8 +295,8 @@ void Game::handleEvent(const Event& theEvent)
 {
 	const GameEvent& gameEvent = static_cast<const GameEvent&>(theEvent);
 
-	//if (gameEvent.getType() == START_SOUND_EVENT) { mSoundManager->soundOn(); }
-	//if (gameEvent.getType() == STOP_SOUND_EVENT) { mSoundManager->soundOff(); }
+	if (gameEvent.getType() == START_SOUND_EVENT) { mSoundManager->soundOn(); }
+	if (gameEvent.getType() == STOP_SOUND_EVENT) { mSoundManager->soundOff(); }
 
 	if (gameEvent.getType() == START_STOP_EVENT)
 	{
@@ -327,6 +310,35 @@ void Game::handleEvent(const Event& theEvent)
 	if (gameEvent.getType() == CHANGE_DIFFICULTY_EVENT)
 	{
 		//mPlayerManager->setDifficulty(mpMenuManager->getCurrentDifficulty());
+		int currentDiff = mMenuManager->getCurrentDifficulty();
+		if (currentDiff == 0)
+		{
+			mPercentRemoved = 40;
+		}
+		else if (currentDiff == 1)
+		{
+			mPercentRemoved = 60;
+		}
+		else if (currentDiff == 2)
+		{
+			mPercentRemoved = 80;
+		}
+	}
+	if (gameEvent.getType() == CHANGE_GRID_SIZE_EVENT)
+	{
+		int currentGrid = mMenuManager->getCurrentGridSize();
+		if (currentGrid == 0)
+		{
+			mGridSize = 9;
+			mBoxSizeX = 3;
+			mBoxSizeY = 3;
+		}
+		else if (currentGrid == 1)
+		{
+			mGridSize = 6;
+			mBoxSizeX = 3;
+			mBoxSizeY = 2;
+		}
 	}
 	if (gameEvent.getType() == SCREEN_CLICK_EVENT)
 	{
