@@ -29,6 +29,10 @@ public:
 
 	float getTime() { return mTime; }
 	bool getNotesOn() { return mNotesOn; }
+
+	int getScore() { return mScore; }
+	void addScore(int add) { mScore += add; }
+	void minusScore(int minus) { mScore -= minus; if (mScore < 0) mScore = 0; }
 private:
 	void draw();
 
@@ -40,10 +44,12 @@ private:
 	int mTileIndex;
 
 	string mTimeText;
+	string mScoreText;
 	string mNotesText;
 
 	Timer mTimer;
 	float mTime;
+	int mScore;
 
 	int mGridSize;
 	int mTileSize;

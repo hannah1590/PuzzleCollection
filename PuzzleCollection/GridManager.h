@@ -4,6 +4,7 @@
 #include "GraphicsBufferManager.h"
 #include "Tile.h"
 #include "GridFiller.h"
+#include "GameEvent.h"
 #include <map>
 #include <iostream>
 
@@ -33,10 +34,22 @@ public:
 	void clearGrid();
 	void draw(int xSeparatorIndex, int ySeparatorIndex, int tileIndex, int xHighlightIndex, int yHighlightIndex);
 	int checkInput(Vector2D loc);
+	bool checkWinState();
+
+	void updateRowState(int y);
+	void updateColumnState(int x);
+	void updateBoxState(int x, int y);
 
 	void changeValue(int value);
 	void addNote(int value) { mHighlightTile->turnOnOffNote(value); }
 	void removeNotes();
+
+	bool getIsHighlighting() { return mIsHighlighting; }
+	Vector2D getHighlightGridPos() { return mHighlightTile->getGridPos(); }
+
+	bool isRowCompleted(int y);
+	bool isColumnCompleted(int x);
+	bool isBoxCompleted(int x, int y);
 private:
 	map <int, Tile*> mGridMap;
 	GraphicsSystem* mGraphicsSystem;
@@ -54,9 +67,15 @@ private:
 
 	GridType mCurrentGrid;
 
+	// Current tile variables
 	bool mIsHighlighting = false;
 	Vector2D mHighlightLoc;
 	Tile* mHighlightTile;
+
+	// Score variables
+	vector<int> mCompletedRows;
+	vector<int> mCompletedColumns;
+	vector<int> mCompletedBoxes;
 
 	// Color variables
 	Color mDefaultNumberColor;

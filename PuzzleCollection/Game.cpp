@@ -26,7 +26,6 @@ Game::Game()
 	mMenuManager->loadColorData(mTextColor);
 	mMenuManager->loadFontData(ASSET_FILE_PATH, mFontName, mMenuFontSize, mSmallMenuFontSize);
 
-	mGridManager->loadGridVariables(mGridSize, mBoxSizeX, mBoxSizeY, mPercentRemoved, mTilePadding, mNotePadding);
 	mGridManager->loadColorData(mDefaultNumberColor, mPlayerInputNumberColor, mSameNumberColor, mWrongInputColor);
 	mGridManager->loadFontData(ASSET_FILE_PATH, mFontName, mNumberFontSize, mNoteFontSize);
 }
@@ -67,7 +66,9 @@ void Game::getVariables()
 		>> holder >> mTileSize
 		>> holder >> mPercentRemoved
 		>> holder >> mTilePadding
-		>> holder >> mNotePadding;
+		>> holder >> mNotePadding
+		>> holder >> mScoreAdd
+		>> holder >> mScoreMinus;
 	gameVariables.close();
 }
 
@@ -177,6 +178,9 @@ void Game::init()
 	pEventSystem->addListener((EventType)START_SOUND_EVENT, this);
 	pEventSystem->addListener((EventType)OPEN_CLOSE_NOTES_EVENT, this);
 	pEventSystem->addListener((EventType)CHANGE_GRID_SIZE_EVENT, this);
+	pEventSystem->addListener((EventType)ADD_SCORE_EVENT, this);
+	pEventSystem->addListener((EventType)MINUS_SCORE_EVENT, this);
+	pEventSystem->addListener((EventType)WIN_GAME_EVENT, this);
 
 	// Loading Menu/HUD text
 	mMenuManager->loadData(MAIN_FILE_PATH + MENU_TEXT_FILE);
@@ -188,15 +192,7 @@ void Game::init()
 	GraphicsBuffer* pBlackBuffer = new GraphicsBuffer(DISP_WIDTH, DISP_HEIGHT);
 	GraphicsBuffer* pTileBuffer = new GraphicsBuffer(mTileColor, mTileSize, mTileSize);
 
-	// Buffers for the lines separating each box
-	GraphicsBuffer* pXSeparatorBuffer = new GraphicsBuffer(mBorderColor, mGridSize * (mTileSize + mTilePadding) + mTilePadding, mTilePadding);
-	GraphicsBuffer* pYSeparatorBuffer = new GraphicsBuffer(mBorderColor, mTilePadding, mGridSize * (mTileSize + mTilePadding) + mTilePadding);
-
-	// Buffers for a box highlighting the current tile clicked
-	GraphicsBuffer* pXHighlightBuffer = new GraphicsBuffer(mHighlightColor, mTileSize + (mTilePadding * 2), mTilePadding);
-	GraphicsBuffer* pYHighlightBuffer = new GraphicsBuffer(mHighlightColor, mTilePadding, mTileSize + (mTilePadding * 2));
-
-	assert(pBlackBuffer && pTileBuffer && pXSeparatorBuffer && pYSeparatorBuffer && pXHighlightBuffer && pYHighlightBuffer);
+	assert(pBlackBuffer && pTileBuffer);
 
 	mGraphicsSystem->setBitmapToColor(*pBlackBuffer, mBackgroundColor);
 
@@ -207,23 +203,12 @@ void Game::init()
 	mBackgroundIndex = bufferIndex; bufferIndex++;
 	mGraphicsBufferManager->addBuffer(bufferIndex, *pTileBuffer);
 	mTileIndex = bufferIndex; bufferIndex++;
-	mGraphicsBufferManager->addBuffer(bufferIndex, *pXSeparatorBuffer);
-	mXSeparatorIndex = bufferIndex; bufferIndex++;
-	mGraphicsBufferManager->addBuffer(bufferIndex, *pYSeparatorBuffer);
-	mYSeparatorIndex = bufferIndex; bufferIndex++;
-	mGraphicsBufferManager->addBuffer(bufferIndex, *pXHighlightBuffer);
-	mXHighlightIndex = bufferIndex; bufferIndex++;
-	mGraphicsBufferManager->addBuffer(bufferIndex, *pYHighlightBuffer);
-	mYHighlightIndex = bufferIndex; bufferIndex++;
 
 	// BGM
-	mSoundManager->playSample(true, mMusicIndex);
+	//mSoundManager->playSample(true, mMusicIndex);
 
-	// Init grid
-	mGridFiller->initGrid(mGridSize, mBoxSizeX, mBoxSizeY);
+	// Init grid manager
 	mGridManager->init(*mGraphicsBufferManager, mTileIndex);
-	// Init HUD
-	mHUD->init(*mGraphicsBufferManager, mTileIndex, mGridSize, mTilePadding);
 }
 
 // Delete game systems in opposite order of creation
@@ -251,9 +236,7 @@ void Game::doLoop()
 	// For grid
 	srand((unsigned int)time(NULL));
 	
-	// Load up grid
-	mGridManager->loadGrid(SUDOKU, DISP_WIDTH, DISP_HEIGHT);
-
+	
 	while (mIsLooping)
 	{
 		// Start loop timer
@@ -302,39 +285,109 @@ void Game::handleEvent(const Event& theEvent)
 	{
 		mMenuManager->toggleMenu();
 	}
-	// TO DO: reset current game
 	if (gameEvent.getType() == NEW_GAME_EVENT)
 	{
+		// Clears grid
+		mGridManager->clearGrid();
+		mGridFiller->clearGrid();
+
+		// Deletes buffers if they already exist
+		if (mXSeparatorIndex != 0)
+		{
+			mGraphicsBufferManager->deleteBuffer(mXSeparatorIndex);
+			mGraphicsBufferManager->deleteBuffer(mYSeparatorIndex);
+			mGraphicsBufferManager->deleteBuffer(mXHighlightIndex);
+			mGraphicsBufferManager->deleteBuffer(mYHighlightIndex);
+		}
+
+		// Makes grid-based buffers
+		// Buffers for the lines separating each box
+		GraphicsBuffer* pXSeparatorBuffer = new GraphicsBuffer(mBorderColor, mGridSize * (mTileSize + mTilePadding) + mTilePadding, mTilePadding);
+		GraphicsBuffer* pYSeparatorBuffer = new GraphicsBuffer(mBorderColor, mTilePadding, mGridSize * (mTileSize + mTilePadding) + mTilePadding);
+
+		// Buffers for a box highlighting the current tile clicked
+		GraphicsBuffer* pXHighlightBuffer = new GraphicsBuffer(mHighlightColor, mTileSize + (mTilePadding * 2), mTilePadding);
+		GraphicsBuffer* pYHighlightBuffer = new GraphicsBuffer(mHighlightColor, mTilePadding, mTileSize + (mTilePadding * 2));
+
+		assert(pXSeparatorBuffer && pYSeparatorBuffer && pXHighlightBuffer && pYHighlightBuffer);
+
+		// Add buffers to buffer manager
+		int bufferIndex = mTileIndex + 1;
+		mGraphicsBufferManager->addBuffer(bufferIndex, *pXSeparatorBuffer);
+		mXSeparatorIndex = bufferIndex; bufferIndex++;
+		mGraphicsBufferManager->addBuffer(bufferIndex, *pYSeparatorBuffer);
+		mYSeparatorIndex = bufferIndex; bufferIndex++;
+		mGraphicsBufferManager->addBuffer(bufferIndex, *pXHighlightBuffer);
+		mXHighlightIndex = bufferIndex; bufferIndex++;
+		mGraphicsBufferManager->addBuffer(bufferIndex, *pYHighlightBuffer);
+		mYHighlightIndex = bufferIndex; bufferIndex++;
+		
+		// Init grid
+		mGridFiller->initGrid(mGridSize, mBoxSizeX, mBoxSizeY);
+		mGridManager->loadGridVariables(mGridSize, mBoxSizeX, mBoxSizeY, mPercentRemoved, mTilePadding, mNotePadding);
+		mGridManager->loadGrid(SUDOKU, DISP_WIDTH, DISP_HEIGHT);
+
+		// Init HUD
 		mHUD->reset();
+		mHUD->init(*mGraphicsBufferManager, mTileIndex, mGridSize, mTilePadding);
 	}
 	if (gameEvent.getType() == CHANGE_DIFFICULTY_EVENT)
 	{
-		//mPlayerManager->setDifficulty(mpMenuManager->getCurrentDifficulty());
 		int currentDiff = mMenuManager->getCurrentDifficulty();
-		if (currentDiff == 0)
+		int gridSize = mMenuManager->getCurrentGridSize();
+
+		// Percent removed per difficulty changes between 9x9 size and 6x6 size
+		if (gridSize == 0)
 		{
-			mPercentRemoved = 40;
+			if (currentDiff == 0)
+			{
+				mPercentRemoved = 40;
+			}
+			else if (currentDiff == 1)
+			{
+				mPercentRemoved = 60;
+			}
+			else if (currentDiff == 2)
+			{
+				mPercentRemoved = 80;
+			}
 		}
-		else if (currentDiff == 1)
+		else
 		{
-			mPercentRemoved = 60;
-		}
-		else if (currentDiff == 2)
-		{
-			mPercentRemoved = 80;
+			if (currentDiff == 0)
+			{
+				mPercentRemoved = 20;
+			}
+			else if (currentDiff == 1)
+			{
+				mPercentRemoved = 40;
+			}
+			else if (currentDiff == 2)
+			{
+				mPercentRemoved = 60;
+			}
 		}
 	}
 	if (gameEvent.getType() == CHANGE_GRID_SIZE_EVENT)
 	{
 		int currentGrid = mMenuManager->getCurrentGridSize();
+
 		if (currentGrid == 0)
 		{
+			// If player is actually changing from 6x6 to 9x9, add 20 to percent removed as 9x9 difficulty has 20 percent more than 6x6
+			if (mGridSize != 9)
+				mPercentRemoved += 20;
+
 			mGridSize = 9;
 			mBoxSizeX = 3;
 			mBoxSizeY = 3;
 		}
 		else if (currentGrid == 1)
 		{
+			// If player is actually changing from 9x9 to 6x6, remove 20 from percent removed as 6x6 difficulty has 20 percent less than 9x9
+			if (mGridSize != 6)
+				mPercentRemoved -= 20;
+
 			mGridSize = 6;
 			mBoxSizeX = 3;
 			mBoxSizeY = 2;
@@ -357,7 +410,6 @@ void Game::handleEvent(const Event& theEvent)
 				else
 					mGridManager->addNote(num);
 			}
-				
 			else
 				mGridManager->checkInput(gameEvent.getMouseLocation());
 		}
@@ -383,6 +435,35 @@ void Game::handleEvent(const Event& theEvent)
 	if (gameEvent.getType() == OPEN_CLOSE_NOTES_EVENT)
 	{
 		mNotesOn = !mNotesOn;
+	}
+	if (gameEvent.getType() == ADD_SCORE_EVENT)
+	{
+		Vector2D pos = mGridManager->getHighlightGridPos();
+		int x = pos.getX();
+		int y = pos.getY();
+
+		// Add extra score if it is the completion of a part of the puzzle
+		int scoreAdd = mScoreAdd;
+		if (mGridManager->isRowCompleted(y))
+			scoreAdd += mScoreAdd;
+		if (mGridManager->isColumnCompleted(x))
+			scoreAdd += mScoreAdd;
+		if (mGridManager->isBoxCompleted(x,y))
+			scoreAdd += mScoreAdd;
+
+		// Add extra score if it completes all 3 parts
+		if (scoreAdd / 4 == mScoreAdd)
+			scoreAdd += mScoreAdd;
+
+		mHUD->addScore(scoreAdd);
+	}
+	if (gameEvent.getType() == MINUS_SCORE_EVENT)
+	{
+		mHUD->minusScore(mScoreMinus);
+	}
+	if (gameEvent.getType() == WIN_GAME_EVENT)
+	{
+		mMenuManager->setToWin(mHUD->getScore());
 	}
 }
 

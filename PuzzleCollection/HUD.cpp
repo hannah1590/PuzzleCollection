@@ -9,7 +9,7 @@ HUD::HUD(GraphicsSystem& graphicsSystem, int dispWidth, int dispHeight)
 
 HUD::~HUD()
 {
-
+	reset();
 }
 
 void HUD::init(GraphicsBufferManager& graphicsBufferManager, int tileIndex, int gridSize, float tilePadding)
@@ -65,8 +65,20 @@ void HUD::draw()
 	Font menuFont(mAssetPath + mFontName, mMenuFontSize);
 	Font noteFont(mAssetPath + mFontName, mNumberFontSize);
 
+	// Draw score
+	Vector2D scoreLoc(0, 0);
+	string scoreText = mScoreText + " " + to_string(mScore);
+	mGraphicsSystem->writeTextToBackbuffer(scoreLoc, menuFont, mTextColor, scoreText, false);
+
+	// Draw time
 	Vector2D timeLoc(500, 0);
-	string timeText = mTimeText + ": " + to_string(mTime);
+	string timeText;
+	int minutes = (int)mTime / 60;
+	int seconds = (int)mTime - (minutes * 60);
+	if(seconds >= 10)
+		timeText = mTimeText + " " + to_string(minutes) + ":" + to_string(seconds);
+	else
+		timeText = mTimeText + " " + to_string(minutes) + ":0" + to_string(seconds);
 	mGraphicsSystem->writeTextToBackbuffer(timeLoc, menuFont, mTextColor, timeText, false);
 
 	// Draw each tile and the numbers on them
@@ -127,6 +139,8 @@ void HUD::reset()
 	mTimer.stop();
 	mTimer.start();
 	mTimer.pause(true);
+
+	mNumMap.clear();
 }
 
 void HUD::loadData(string& filename)
@@ -139,7 +153,7 @@ void HUD::loadData(string& filename)
 		data >> currentString;
 		if (currentString == "HUD")
 		{
-			data >> mTimeText >> mNotesText;
+			data >> mTimeText >> mScoreText >> mNotesText;
 		}
 	}
 }

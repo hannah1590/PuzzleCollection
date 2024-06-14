@@ -76,6 +76,14 @@ void GridManager::loadGrid(GridType gridType, int dispWidth, int dispHeight)
 				{
 					mGridMap[i * mGridSize + j]->changeValue(mGridFiller->getValue(j, i));
 					mGridMap[i * mGridSize + j]->setDefault();
+
+					// Update grid state at the end of every row, column, and box
+					if (j == mGridSize - 1)
+						updateRowState(i);
+					if (i == mGridSize - 1)
+						updateColumnState(j);
+					if (((j + 1) % mBoxSizeX == 0 && (i + 1) % mBoxSizeY == 0))
+						updateBoxState(j, i);
 				}
 			}
 		}
@@ -178,30 +186,125 @@ int GridManager::checkInput(Vector2D loc)
 
 void GridManager::changeValue(int value)
 {
+	EventSystem* pEventSystem = EventSystem::getInstance();
+
 	if (mIsHighlighting && !mHighlightTile->getDefault())
 	{
-		// If the number is wrong change the font color of that number to white
+		// Checks if current value is already correct
 		Vector2D pos = mHighlightTile->getGridPos();
-		if (value != mGridFiller->getValue(pos.getX(), pos.getY()) && value != 0)
+		if (mHighlightTile->getValue() != mGridFiller->getValue(pos.getX(), pos.getY()))
 		{
-			mHighlightTile->setIsWrong(true);
-			mHighlightTile->changeFontColor(mWrongInputColor);
+			// If the number is wrong change the font color of that number to white
+			if (value != mGridFiller->getValue(pos.getX(), pos.getY()) && value != 0)
+			{
+				mHighlightTile->setIsWrong(true);
+				mHighlightTile->changeFontColor(mWrongInputColor);
+
+				// Detract from score
+				GameEvent gameEvent(MINUS_SCORE_EVENT);
+				pEventSystem->fireEvent(gameEvent);
+			}
+			else
+			{
+				mHighlightTile->setIsWrong(false);
+				mHighlightTile->changeFontColor(Color());
+			}
+
+			// Sets tile equal to value unless it is already equal, then set to 0
+			if (value != mHighlightTile->getValue())
+			{
+				mHighlightTile->changeValue(value);
+				removeNotes();
+
+				if (value == mGridFiller->getValue(pos.getX(), pos.getY()) && value != 0)
+				{
+					// Update current board state and add score
+					updateRowState(pos.getY());
+					updateColumnState(pos.getX());
+					updateBoxState(pos.getX(), pos.getY());
+					GameEvent gameEvent(ADD_SCORE_EVENT);
+					pEventSystem->fireEvent(gameEvent);
+
+					// Check if game is won
+					if (checkWinState())
+					{
+						GameEvent gameEvent(WIN_GAME_EVENT);
+						pEventSystem->fireEvent(gameEvent);
+					}
+				}
+			}
+			else
+				mHighlightTile->changeValue(0);
 		}
-		else
-		{
-			mHighlightTile->setIsWrong(false);
-			mHighlightTile->changeFontColor(Color());
-		}
-			
-		// Sets tile equal to value unless it is already equal, then set to 0
-		if (value != mHighlightTile->getValue())
-		{
-			mHighlightTile->changeValue(value);
-			removeNotes();
-		}
-		else
-			mHighlightTile->changeValue(0);
 	}
+}
+
+void GridManager::updateRowState(int y)
+{
+	// Check through row
+	int amountCleared = 0;
+	for (int i = 0; i < mGridSize; i++)
+	{
+		if (mGridMap[y * mGridSize + i]->getValue() != 0 && !mGridMap[y * mGridSize + i]->getIsWrong())
+		{
+			amountCleared++;
+		}
+	}
+	if (amountCleared == mGridSize)
+	{
+		mCompletedRows.push_back(y);
+	}
+}
+
+void GridManager::updateColumnState(int x)
+{
+	// Check through column
+	int amountCleared = 0;
+	for (int i = 0; i < mGridSize; i++)
+	{
+		if (mGridMap[i * mGridSize + x]->getValue() != 0 && !mGridMap[i * mGridSize + x]->getIsWrong())
+		{
+			amountCleared++;
+		}
+	}
+	if (amountCleared == mGridSize)
+	{
+		mCompletedColumns.push_back(x);
+	}
+}
+
+void GridManager::updateBoxState(int x, int y)
+{
+	// Check through box
+	int amountCleared = 0;
+	for (int i = y - (y % mBoxSizeY); i <= (y - (y % mBoxSizeY)) + (mBoxSizeY - 1); i++)
+	{
+		for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++)
+		{
+			if (mGridMap[i * mGridSize + j]->getValue() && !mGridMap[i * mGridSize + j]->getIsWrong())
+			{
+				amountCleared++;
+			}
+		}
+	}
+	if (amountCleared == mGridSize)
+	{
+		mCompletedBoxes.push_back((x / mBoxSizeX) + ((y % mBoxSizeY) * mBoxSizeY));
+	}
+}
+
+bool GridManager::checkWinState()
+{
+	/*
+	cout << "Rows: " << mCompletedRows.size() << endl;
+	cout << "Columns: " << mCompletedColumns.size() << endl;
+	cout << "Boxes: " << mCompletedBoxes.size() << endl;
+	cout << "\n";*/
+	if (mCompletedRows.size() == mGridSize && mCompletedColumns.size() == mGridSize && mCompletedBoxes.size() == mGridSize)
+	{
+		return true;
+	}
+	return false;
 }
 
 void GridManager::removeNotes()
@@ -240,4 +343,33 @@ void GridManager::removeNotes()
 			}
 		}
 	}
+}
+
+// Check if given row is completed
+bool GridManager::isRowCompleted(int y)
+{
+	auto it = find(mCompletedRows.begin(), mCompletedRows.end(), y);
+	if (it != mCompletedRows.end())
+		return true;
+
+	return false;
+}
+
+// Check if given column is completed
+bool  GridManager::isColumnCompleted(int x)
+{
+	auto it = find(mCompletedColumns.begin(), mCompletedColumns.end(), x);
+	if (it != mCompletedColumns.end())
+		return true;
+
+	return false;
+}
+
+// Check if box column is completed
+bool  GridManager::isBoxCompleted(int x, int y)
+{
+	auto it = find(mCompletedBoxes.begin(), mCompletedBoxes.end(), (x / mBoxSizeX) + ((y % mBoxSizeY) * mBoxSizeY));
+	if (it != mCompletedBoxes.end())
+		return true;
+	return false;
 }

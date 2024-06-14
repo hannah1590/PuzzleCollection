@@ -33,7 +33,7 @@ public:
 
 	void setToMain() { mCurrentMenu = 0; }
 	void setToGameOver() { mCurrentMenu = 2; }
-	void setToWin() { mCurrentMenu = 7; }
+	void setToWin(int score) { mCurrentMenu = 7; mScore = score; mIsMenuOpen = true; }
 	void setCurrentDifficulty(int difficulty) { mCurrentDifficulty = difficulty; }
 
 private:
@@ -47,6 +47,8 @@ private:
 	int mCurrentGridSize;
 
 	map<string, string> mTextMap;
+
+	int mScore;
 
 	// Color variables
 	Color mTextColor;

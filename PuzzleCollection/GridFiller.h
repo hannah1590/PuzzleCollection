@@ -13,6 +13,8 @@ public:
 	~GridFiller();
 
 	void initGrid(int size, int boxX, int boxY);
+	void clearGrid();
+
 	void fillGrid();
 	void printGrid(); // for debug purposes
 

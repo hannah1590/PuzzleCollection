@@ -14,7 +14,7 @@ public:
 	void addBuffer(int index, GraphicsBuffer& newGraphicsBuffer);
 	GraphicsBuffer* getBuffer(int index) { return mGraphicsBuffers[index]; }
 	bool doesExist(int index);
-	void deleteBuffer(int index);// { mGraphicsBuffers.erase(index); }
+	void deleteBuffer(int index);
 	int getSize() { return mGraphicsBuffers.size(); }
 private:
 	std::map<int, GraphicsBuffer*> mGraphicsBuffers;

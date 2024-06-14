@@ -163,12 +163,15 @@ void MenuManager::draw()
 		{
 			//WIN SCREEN
 			Vector2D loc1(250, 200);
-			Vector2D loc2(270, 300);
+			Vector2D loc2(200, 300);
+			Vector2D loc3(250, 400);
 			string text1 = mTextMap["Menu7_1"];
-			string text2 = mTextMap["Menu7_2"];
+			string text2 = mTextMap["Menu7_2"] + to_string(mScore);
+			string text3 = mTextMap["Menu7_3"];
 
 			mGraphicsSystem->writeTextToBackbuffer(loc1, menuFont, mTextColor, text1, false);
-			mGraphicsSystem->writeTextToBackbuffer(loc2, smallMenuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc2, menuFont, mTextColor, text2, false);
+			mGraphicsSystem->writeTextToBackbuffer(loc3, smallMenuFont, mTextColor, text3, false);
 		}
 	}
 }

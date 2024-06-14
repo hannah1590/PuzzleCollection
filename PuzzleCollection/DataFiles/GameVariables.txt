@@ -5,3 +5,5 @@ TileSize         45
 PercentRemoved   60
 TilePadding       5
 NotePadding      15
+ScoreAdd        100
+ScoreSubtract   100

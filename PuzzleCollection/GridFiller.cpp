@@ -1,18 +1,12 @@
 #include "GridFiller.h";
 GridFiller::GridFiller()
 {
-    //initGrid();
+
 }
 
-// Clears grid
 GridFiller::~GridFiller()
 {
-    for (auto& i : mGrid)
-    {
-        i.clear();
-    }
-    mGrid.clear();
-    mNums.clear();
+    clearGrid();
 }
 
 // Fills grid with 0s
@@ -288,4 +282,15 @@ void GridFiller::printGrid()
     }
 
     cout << "\n\n";
+}
+
+// Clears grid
+void GridFiller::clearGrid()
+{
+    for (auto& i : mGrid)
+    {
+        i.clear();
+    }
+    mGrid.clear();
+    mNums.clear();
 }

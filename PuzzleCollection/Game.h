@@ -24,6 +24,7 @@ class UnitManager;
 class GraphicsBufferManager;
 class InputTranslator;
 class HUD;
+class GridManager;
 
 // Controls all game systems
 class Game : public EventListener
@@ -79,6 +80,8 @@ private:
 	int mPercentRemoved; // Percentage of board cleared
 	float mTilePadding;
 	float mNotePadding;
+	int mScoreAdd;
+	int mScoreMinus;
 
 	const int DISP_WIDTH = 800;
 	const int DISP_HEIGHT = 600;
