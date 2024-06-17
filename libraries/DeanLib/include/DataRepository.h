@@ -6,6 +6,11 @@
 #include <assert.h>
 #include <unordered_map>
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 const UINT MAX_STRING_VAL_SIZE = 128;
 
 union DataUnion

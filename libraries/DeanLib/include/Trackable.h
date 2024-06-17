@@ -2,6 +2,11 @@
 
 #include <iostream>
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 class Trackable
 {
 public:

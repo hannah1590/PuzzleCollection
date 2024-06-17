@@ -2,6 +2,11 @@
 
 #include <Trackable.h>
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 /*template <class T, void (*F)(T)>
 void callbackFunc(T var)
 {

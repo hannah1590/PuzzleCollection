@@ -1,16 +1,19 @@
 #include "GraphicsSystem.h"
 
+// Default contructor
 GraphicsSystem::GraphicsSystem()
 {
 	mDisplay = NULL;
 }
 
+// Destroys allegro display
 GraphicsSystem::~GraphicsSystem() 
 {
 	al_destroy_display(mDisplay);
 	cleanup();
 }
 
+// Creates the screen
 void GraphicsSystem::createDisplay(int width, int height) 
 {
 	mDisplay = al_create_display(width, height);
@@ -22,12 +25,16 @@ bool GraphicsSystem::initGraphics()
 {
 	bool didInit1;
 	bool didInit2;
+
+	// Inits main system
 	didInit1 = al_init();
 	if (!didInit1) 
 	{
 		cout << "ERROR - System not initted\n";
 		return false;
 	}
+
+	// Inits graphics subsystem
 	didInit1 = al_init_image_addon();
 	didInit2 = al_init_primitives_addon();
 	if (!didInit1 && !didInit2) 
@@ -35,6 +42,8 @@ bool GraphicsSystem::initGraphics()
 		cout << "ERROR - Graphics subsystem not initted\n";
 		return false;
 	}
+
+	// Inits font subsystem
 	didInit1 = al_init_font_addon();
 	didInit2 = al_init_ttf_addon();
 	if (!didInit1 && !didInit2) 
@@ -45,22 +54,20 @@ bool GraphicsSystem::initGraphics()
 	return true;
 }
 
+// Uninstalls allegro
 void GraphicsSystem::cleanup() 
 {
 	al_uninstall_system();
 }
 
+// Gets the current backbuffer of the specificed graphics buffer
 GraphicsBuffer* GraphicsSystem::getBackbuffer(GraphicsBuffer& pGraphicsBuffer) 
 {
 	pGraphicsBuffer.mBitmap = al_get_backbuffer(mDisplay);
 	return &pGraphicsBuffer;
 }
 
-Vector2D GraphicsSystem::getSize(GraphicsBuffer& graphicsBuffer) 
-{
-	return graphicsBuffer.getSize();
-}
-
+// Makes the current display visible
 void GraphicsSystem::flip() 
 {
 	al_flip_display();
@@ -101,7 +108,7 @@ void GraphicsSystem::drawGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, co
 	al_set_target_bitmap(pOldTarget);
 } 
 
-// Draw backbuffer
+// Draw backbuffer at a specific location
 void GraphicsSystem::drawBackbuffer(const Vector2D& targetLoc, GraphicsBuffer& destination, float scale) 
 {
 	float sx = 0.0f;
@@ -116,7 +123,7 @@ void GraphicsSystem::drawBackbuffer(const Vector2D& targetLoc, GraphicsBuffer& d
 	al_draw_scaled_bitmap(destination.mBitmap, sx, sy, sw, sh, dx, dy, dw, dh, 0);
 }
 
-// Draw graphics buffer on top of current buffer
+// Draw graphics buffer on top of current buffer at a specific location
 void GraphicsSystem::drawGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, GraphicsBuffer& destination, float scale) 
 {
 	ALLEGRO_BITMAP* pOldTarget = al_get_target_bitmap();
@@ -136,7 +143,7 @@ void GraphicsSystem::drawGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, co
 	al_set_target_bitmap(pOldTarget);
 } 
 
-// Write text on back buffer
+// Write text on back buffer at location
 void GraphicsSystem::writeTextToBackbuffer(const Vector2D& targetLoc, Font& font, Color& color, const std::string& text, bool alignCenter) 
 {
 	const ALLEGRO_COLOR pColor = al_map_rgba(color.getR(), color.getG(), color.getB(), color.getA());
@@ -146,7 +153,7 @@ void GraphicsSystem::writeTextToBackbuffer(const Vector2D& targetLoc, Font& font
 		al_draw_text(font.mFont, pColor, targetLoc.getX(), targetLoc.getY(), ALLEGRO_ALIGN_LEFT, text.c_str());
 }
 
-// Write text on top of current buffer
+// Write text on top of current buffer at location
 void GraphicsSystem::writeTextToGraphicsBuffer(GraphicsBuffer& targetGraphicsBuffer, const Vector2D& targetLoc, Font& font, Color& color, const std::string& text, bool alignCenter)
 {
 	ALLEGRO_BITMAP* pOldTarget = al_get_target_bitmap();
@@ -161,6 +168,7 @@ void GraphicsSystem::writeTextToGraphicsBuffer(GraphicsBuffer& targetGraphicsBuf
 	al_set_target_bitmap(pOldTarget);
 }
 
+// Saves the current buffer to an image file
 void GraphicsSystem::saveBuffer(GraphicsBuffer& buffer, const std::string& filename) 
 {
 	al_save_bitmap(filename.c_str(), buffer.mBitmap);
@@ -177,7 +185,7 @@ void GraphicsSystem::setBitmapToColor(GraphicsBuffer& bitmap, Color& color)
 	al_set_target_bitmap(pOldTarget);
 }
 
-// By Nate
+// Draws squares on the screen to act as buttons
 void GraphicsSystem::drawButtons(int amount, float spacing, float size, float x1, float y1, Color& color)
 {
 	const ALLEGRO_COLOR pColor = al_map_rgba(color.getR(), color.getG(), color.getB(), color.getA());

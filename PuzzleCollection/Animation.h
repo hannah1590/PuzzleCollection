@@ -1,6 +1,13 @@
 #pragma once
 #include "Sprite.h"
 #include <vector>
+
+/* Holds all the sprites that together makes a single animation
+   by Hannah Fasco
+ 
+   Currently unused but may be used in the future for win animations
+*/
+
 class Animation : public Trackable
 {
 public:
@@ -13,9 +20,9 @@ public:
 	int getCurrentIndex() { return mCurrentSprite; }
 	Sprite getCurrentSprite() { return mSprites[mCurrentSprite]; }
 private:
-	std::vector<Sprite> mSprites;  // contains every sprite in the animation
-	double mTimePerSprite;         // time each sprite is on the screen in milliseconds
-	double mTimeRemaining;         // how much time the sprite has remaining on screen
-	int mCurrentSprite;            // current sprite on screen
-	bool mShouldLoop;              // does the animation loop
+	std::vector<Sprite> mSprites;  // Contains every sprite in the animation
+	double mTimePerSprite;         // Time each sprite is on the screen in milliseconds
+	double mTimeRemaining;         // How much time the sprite has remaining on screen
+	int mCurrentSprite;            // Current sprite on screen
+	bool mShouldLoop;              // Does the animation loop
 };

@@ -10,7 +10,11 @@ using namespace std;
 
 class GraphicsBuffer;
 
-// Handles allegro draw functions and buffers
+/* Handles allegro draw functionsand buffers
+   by Hannah Fasco
+   drawButtons function by Nate Spielman
+*/
+
 class GraphicsSystem:public Trackable
 {
 public:
@@ -22,7 +26,7 @@ public:
 	void cleanup();
 
 	GraphicsBuffer* getBackbuffer(GraphicsBuffer& pGraphicsBuffer);
-	Vector2D getSize(GraphicsBuffer& graphicsBuffer);
+	Vector2D getSize(GraphicsBuffer& graphicsBuffer) { return graphicsBuffer.getSize(); }
 	void flip();
 
 	void drawBackbuffer(const Vector2D& targetLoc, Sprite& sprite, float scale); 
@@ -37,7 +41,6 @@ public:
 
 	void setBitmapToColor(GraphicsBuffer& bitmap, Color& color);
 
-	// By Nate
 	void drawButtons(int amount, float spacing, float size, float x1, float y1, Color& color);
 private:
 	ALLEGRO_DISPLAY* mDisplay;

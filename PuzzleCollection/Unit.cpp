@@ -1,5 +1,6 @@
 #include "Unit.h"
 
+// Initializes unit information
 Unit::Unit(GraphicsBufferManager& graphicsBuffer, Vector2D location, Vector2D velocity, int speed)
 {
 	mIsFree = false;

@@ -1,5 +1,6 @@
 #include "HUD.h"
 
+// Loads important HUD variables
 HUD::HUD(GraphicsSystem& graphicsSystem, int dispWidth, int dispHeight)
 {
 	mGraphicsSystem = &graphicsSystem;
@@ -7,11 +8,13 @@ HUD::HUD(GraphicsSystem& graphicsSystem, int dispWidth, int dispHeight)
 	mDispHeight = dispHeight;
 }
 
+// Deletes current HUD
 HUD::~HUD()
 {
 	reset();
 }
 
+// Initializes grid-based variables
 void HUD::init(GraphicsBufferManager& graphicsBufferManager, int tileIndex, int gridSize, float tilePadding)
 {
 	mGraphicsBufferManager = &graphicsBufferManager;
@@ -32,6 +35,7 @@ void HUD::init(GraphicsBufferManager& graphicsBufferManager, int tileIndex, int 
 	}
 }
 
+// Loads all color data needed
 void HUD::loadColorData(Color& text, Color& tile, Color& note)
 {
 	mTextColor = text;
@@ -39,6 +43,7 @@ void HUD::loadColorData(Color& text, Color& tile, Color& note)
 	mNoteUIColor = note;
 }
 
+// Loads all font data needed
 void HUD::loadFontData(string assetPath, string fontName, int menuFontSize, int numberFontSize)
 {
 	mAssetPath = assetPath;
@@ -47,12 +52,31 @@ void HUD::loadFontData(string assetPath, string fontName, int menuFontSize, int 
 	mNumberFontSize = numberFontSize;
 }
 
+// Loads HUD display data
+void HUD::loadData(string& filename)
+{
+	ifstream data(filename);
+	string currentString;
+
+	while (!data.eof())
+	{
+		data >> currentString;
+		if (currentString == "HUD")
+		{
+			data >> mTimeText >> mScoreText >> mNotesText;
+		}
+	}
+}
+
+// Updates current HUD
 void HUD::update(float savedTime, bool notes)
 {
 	mNotesOn = notes;
+
 	mTimer.pause(true);
 	mTimer.pause(false);
-
+	
+	// Adjusts HUD time
 	mTime = mTimer.getElapsedTime();
 	mTime = mTime / 1000;
 	mTime += savedTime;
@@ -60,42 +84,17 @@ void HUD::update(float savedTime, bool notes)
 	draw();
 }
 
-void HUD::draw()
+// Resets timer
+void HUD::reset()
 {
-	Font menuFont(mAssetPath + mFontName, mMenuFontSize);
-	Font noteFont(mAssetPath + mFontName, mNumberFontSize);
+	mTimer.stop();
+	mTimer.start();
+	mTimer.pause(true);
 
-	// Draw score
-	Vector2D scoreLoc(0, 0);
-	string scoreText = mScoreText + " " + to_string(mScore);
-	mGraphicsSystem->writeTextToBackbuffer(scoreLoc, menuFont, mTextColor, scoreText, false);
-
-	// Draw time
-	Vector2D timeLoc(500, 0);
-	string timeText;
-	int minutes = (int)mTime / 60;
-	int seconds = (int)mTime - (minutes * 60);
-	if(seconds >= 10)
-		timeText = mTimeText + " " + to_string(minutes) + ":" + to_string(seconds);
-	else
-		timeText = mTimeText + " " + to_string(minutes) + ":0" + to_string(seconds);
-	mGraphicsSystem->writeTextToBackbuffer(timeLoc, menuFont, mTextColor, timeText, false);
-
-	// Draw each tile and the numbers on them
-	for (auto& i : mNumMap)
-	{
-		mGraphicsSystem->drawBackbuffer(i.second, *mGraphicsBufferManager->getBuffer(mTileIndex), 1.2f);
-		if(!mNotesOn)
-			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), menuFont, mTextColor, to_string(i.first + 1), true);
-		else
-			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), menuFont, mNoteUIColor, to_string(i.first + 1), true);
-	}
-
-	// Draw notes button
-	mGraphicsSystem->drawButtons(1, 0, mTileSize * 2, mNotesButtonLoc.getX(), mNotesButtonLoc.getY(), mTileColor);
-	mGraphicsSystem->writeTextToBackbuffer(mNotesButtonLoc + Vector2D((mTileSize * 2.0f) / 2.0f, (mTileSize * 2.0f) / 8.0f), noteFont, mTextColor, mNotesText, true);
+	mNumMap.clear();
 }
 
+// Checks if the user clicked on a portion of the HUD
 int HUD::checkInput(Vector2D loc)
 {
 	EventSystem* pEventSystem = EventSystem::getInstance();
@@ -129,31 +128,40 @@ int HUD::checkInput(Vector2D loc)
 	return 0;
 }
 
-void HUD::pauseTimer()
+// Draws current HUD
+void HUD::draw()
 {
-	mTimer.pause(true);
-}
+	// Font variables
+	Font menuFont(mAssetPath + mFontName, mMenuFontSize);
+	Font noteFont(mAssetPath + mFontName, mNumberFontSize);
 
-void HUD::reset()
-{
-	mTimer.stop();
-	mTimer.start();
-	mTimer.pause(true);
+	// Draw score
+	Vector2D scoreLoc(0, 0);
+	string scoreText = mScoreText + " " + to_string(mScore);
+	mGraphicsSystem->writeTextToBackbuffer(scoreLoc, menuFont, mTextColor, scoreText, false);
 
-	mNumMap.clear();
-}
+	// Draw time
+	Vector2D timeLoc(500, 0);
+	string timeText;
+	int minutes = (int)mTime / 60;
+	int seconds = (int)mTime - (minutes * 60);
+	if(seconds >= 10)
+		timeText = mTimeText + " " + to_string(minutes) + ":" + to_string(seconds);
+	else
+		timeText = mTimeText + " " + to_string(minutes) + ":0" + to_string(seconds);
+	mGraphicsSystem->writeTextToBackbuffer(timeLoc, menuFont, mTextColor, timeText, false);
 
-void HUD::loadData(string& filename)
-{
-	ifstream data(filename);
-	string currentString;
-
-	while (!data.eof())
+	// Draw each tile and the numbers on them
+	for (auto& i : mNumMap)
 	{
-		data >> currentString;
-		if (currentString == "HUD")
-		{
-			data >> mTimeText >> mScoreText >> mNotesText;
-		}
+		mGraphicsSystem->drawBackbuffer(i.second, *mGraphicsBufferManager->getBuffer(mTileIndex), 1.2f);
+		if(!mNotesOn)
+			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), menuFont, mTextColor, to_string(i.first + 1), true);
+		else
+			mGraphicsSystem->writeTextToBackbuffer(i.second + Vector2D(mTileSize / 2.0f), menuFont, mNoteUIColor, to_string(i.first + 1), true);
 	}
+
+	// Draw notes button
+	mGraphicsSystem->drawButtons(1, 0, mTileSize * 2, mNotesButtonLoc.getX(), mNotesButtonLoc.getY(), mTileColor);
+	mGraphicsSystem->writeTextToBackbuffer(mNotesButtonLoc + Vector2D((mTileSize * 2.0f) / 2.0f, (mTileSize * 2.0f) / 8.0f), noteFont, mTextColor, mNotesText, true);
 }

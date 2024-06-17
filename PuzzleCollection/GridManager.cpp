@@ -1,22 +1,26 @@
 #include "GridManager.h"
 
+// Loads in main pointer variables needed
 GridManager::GridManager(GraphicsSystem& graphicsSystem, GridFiller& gridFiller)
 {
 	mGraphicsSystem = &graphicsSystem;
 	mGridFiller = &gridFiller;
 }
 
+// Cleans up grid map
 GridManager::~GridManager()
 {
 	clearGrid();
 }
 
+// Establishes buffer variables
 void GridManager::init(GraphicsBufferManager& graphicsBufferManager, int tileIndex)
 {
 	mGraphicsBufferManager = &graphicsBufferManager;
 	mTileSize = mGraphicsBufferManager->getBuffer(tileIndex)->getSize().getX();
 }
 
+// Loads variables to properly make grid
 void GridManager::loadGridVariables(int gridSize, int boxSizeX, int boxSizeY, int percentRemoved, float tilePadding, float notePadding)
 {
 	mGridSize = gridSize;
@@ -27,6 +31,7 @@ void GridManager::loadGridVariables(int gridSize, int boxSizeX, int boxSizeY, in
 	mNotePadding = notePadding;
 }
 
+// Loads all color variables used by class
 void GridManager::loadColorData(Color& default, Color& playerInput, Color& sameNumber, Color& wrong)
 {
 	mDefaultNumberColor = default;
@@ -35,6 +40,8 @@ void GridManager::loadColorData(Color& default, Color& playerInput, Color& sameN
 	mWrongInputColor = wrong;
 }
 
+
+// Loads all font data used by class
 void GridManager::loadFontData(string assetPath, string fontName, int numberFontSize, int noteFontSize)
 {
 	mAssetPath = assetPath;
@@ -43,6 +50,7 @@ void GridManager::loadFontData(string assetPath, string fontName, int numberFont
 	mNoteFontSize = noteFontSize;
 }
 
+// Creates the intial grid
 void GridManager::loadGrid(GridType gridType, int dispWidth, int dispHeight)
 {
 	mCurrentGrid = gridType;
@@ -54,11 +62,15 @@ void GridManager::loadGrid(GridType gridType, int dispWidth, int dispHeight)
 	// Set up grid according to current game
 	if (mCurrentGrid == SUDOKU)
 	{
+		// Generates a sudoku board
 		mGridFiller->fillGrid();
+
+		// Goes through entire grid
 		for (int i = 0; i < mGridSize; i++)
 		{
 			for (int j = 0; j < mGridSize; j++)
 			{
+				// Makes a tile and adds it to the map
 				Vector2D loc = Vector2D(j * (mTileSize + mTilePadding) + startPosX, i * (mTileSize + mTilePadding) + startPosY);
 				Tile* tile = new Tile(loc, Vector2D(j, i), mGridSize);
 				mGridMap[i * mGridSize + j] = tile;
@@ -90,6 +102,7 @@ void GridManager::loadGrid(GridType gridType, int dispWidth, int dispHeight)
 	}
 }
 
+// Cleans up grid map
 void GridManager::clearGrid()
 {
 	for (auto& i : mGridMap)
@@ -100,9 +113,11 @@ void GridManager::clearGrid()
 	mGridMap.clear();
 }
 
+// Draws the current state of the grid on the screen
 void GridManager::draw(int xSeparatorIndex, int ySeparatorIndex, int tileIndex, int xHighlightIndex, int yHighlightIndex)
 {
 	Vector2D loc;
+
 	// Draw lines on the x-axis between each box
 	for (int i = 0; i < mGridSize / mBoxSizeY; i++)
 	{
@@ -128,7 +143,7 @@ void GridManager::draw(int xSeparatorIndex, int ySeparatorIndex, int tileIndex, 
 	// Draw each tile with the number
 	for (int i = 0; i < mGridMap.size(); i++)
 	{
-		// Checks what color the tile needs to be
+		// Checks what color the number needs to be
 		if (mGridMap[i]->getValue() != 0)
 		{
 			// Changes the number to green if it is the same as the selected tile
@@ -136,9 +151,8 @@ void GridManager::draw(int xSeparatorIndex, int ySeparatorIndex, int tileIndex, 
 				mGridMap[i]->changeFontColor(mSameNumberColor);
 			else if (!mGridMap[i]->getIsWrong())
 				mGridMap[i]->changeFontColor(Color());
-
 		}
-		
+
 		// Draw tile
 		mGridMap[i]->draw(tileIndex);
 	}
@@ -160,11 +174,13 @@ void GridManager::draw(int xSeparatorIndex, int ySeparatorIndex, int tileIndex, 
 	}
 }
 
+// Checks if the player clicked on a specific grid tile
 int GridManager::checkInput(Vector2D loc)
 {
 	float x = loc.getX();
 	float y = loc.getY();
 
+	// Loops through each tile on the grid map
 	for (auto& i : mGridMap)
 	{
 		Vector2D tileLoc = i.second->getPos();
@@ -173,6 +189,7 @@ int GridManager::checkInput(Vector2D loc)
 		{
 			if (y >= tileLoc.getY() && y <= tileLoc.getY() + mTileSize)
 			{
+				// If tile is in bounds, assign it as the currently selected tile
 				mIsHighlighting = true;
 				mHighlightLoc = i.second->getPos();
 				mHighlightTile = i.second;
@@ -180,21 +197,102 @@ int GridManager::checkInput(Vector2D loc)
 			}
 		}
 	}
+
+	// If no tile was selected
 	mIsHighlighting = false;
 	mHighlightTile = nullptr;
 }
 
+// Checks if grid is completely filled out and correct
+bool GridManager::checkWinState()
+{
+	if (mCompletedRows.size() == mGridSize && mCompletedColumns.size() == mGridSize && mCompletedBoxes.size() == mGridSize)
+	{
+		return true;
+	}
+	return false;
+}
+
+// Checks if a specific row was completed
+void GridManager::updateRowState(int y)
+{
+	// Check through row
+	int amountCleared = 0;
+	for (int i = 0; i < mGridSize; i++)
+	{
+		// Checks if current tile has a correct input it
+		if (mGridMap[y * mGridSize + i]->getValue() != 0 && !mGridMap[y * mGridSize + i]->getIsWrong())
+		{
+			amountCleared++;
+		}
+	}
+
+	// If the number of correct tiles equals grid size, the row was completed
+	if (amountCleared == mGridSize)
+	{
+		mCompletedRows.push_back(y);
+	}
+}
+
+// Checks if a specific column was completed
+void GridManager::updateColumnState(int x)
+{
+	// Check through column
+	int amountCleared = 0;
+	for (int i = 0; i < mGridSize; i++)
+	{
+		// Checks if current tile has a correct input it
+		if (mGridMap[i * mGridSize + x]->getValue() != 0 && !mGridMap[i * mGridSize + x]->getIsWrong())
+		{
+			amountCleared++;
+		}
+	}
+
+	// If the number of correct tiles equals grid size, the column was completed
+	if (amountCleared == mGridSize)
+	{
+		mCompletedColumns.push_back(x);
+	}
+}
+
+// Checks if a specific box was completed
+void GridManager::updateBoxState(int x, int y)
+{
+	// Check through box
+	int amountCleared = 0;
+	for (int i = y - (y % mBoxSizeY); i <= (y - (y % mBoxSizeY)) + (mBoxSizeY - 1); i++)
+	{
+		for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++)
+		{
+			// Checks if current tile has a correct input it
+			if (mGridMap[i * mGridSize + j]->getValue() && !mGridMap[i * mGridSize + j]->getIsWrong())
+			{
+				amountCleared++;
+			}
+		}
+	}
+
+	// If the number of correct tiles equals grid size, the box was completed
+	if (amountCleared == mGridSize)
+	{
+		mCompletedBoxes.push_back((x / mBoxSizeX) + ((y % mBoxSizeY) * mBoxSizeY));
+	}
+}
+
+// Changes the current selected tile's value
 void GridManager::changeValue(int value)
 {
 	EventSystem* pEventSystem = EventSystem::getInstance();
 
+	// Only changes value if a tile is currently selected that isn't a default tile
 	if (mIsHighlighting && !mHighlightTile->getDefault())
 	{
-		// Checks if current value is already correct
 		Vector2D pos = mHighlightTile->getGridPos();
+
+		// Only changes tile value if current value is not already correct
 		if (mHighlightTile->getValue() != mGridFiller->getValue(pos.getX(), pos.getY()))
 		{
-			// If the number is wrong change the font color of that number to white
+			// If the number is wrong change the font color of that number
 			if (value != mGridFiller->getValue(pos.getX(), pos.getY()) && value != 0)
 			{
 				mHighlightTile->setIsWrong(true);
@@ -207,7 +305,7 @@ void GridManager::changeValue(int value)
 			else
 			{
 				mHighlightTile->setIsWrong(false);
-				mHighlightTile->changeFontColor(Color());
+				mHighlightTile->changeFontColor(Color()); // Changes back to original number color
 			}
 
 			// Sets tile equal to value unless it is already equal, then set to 0
@@ -216,6 +314,7 @@ void GridManager::changeValue(int value)
 				mHighlightTile->changeValue(value);
 				removeNotes();
 
+				// Checks if value is correct
 				if (value == mGridFiller->getValue(pos.getX(), pos.getY()) && value != 0)
 				{
 					// Update current board state and add score
@@ -239,74 +338,7 @@ void GridManager::changeValue(int value)
 	}
 }
 
-void GridManager::updateRowState(int y)
-{
-	// Check through row
-	int amountCleared = 0;
-	for (int i = 0; i < mGridSize; i++)
-	{
-		if (mGridMap[y * mGridSize + i]->getValue() != 0 && !mGridMap[y * mGridSize + i]->getIsWrong())
-		{
-			amountCleared++;
-		}
-	}
-	if (amountCleared == mGridSize)
-	{
-		mCompletedRows.push_back(y);
-	}
-}
-
-void GridManager::updateColumnState(int x)
-{
-	// Check through column
-	int amountCleared = 0;
-	for (int i = 0; i < mGridSize; i++)
-	{
-		if (mGridMap[i * mGridSize + x]->getValue() != 0 && !mGridMap[i * mGridSize + x]->getIsWrong())
-		{
-			amountCleared++;
-		}
-	}
-	if (amountCleared == mGridSize)
-	{
-		mCompletedColumns.push_back(x);
-	}
-}
-
-void GridManager::updateBoxState(int x, int y)
-{
-	// Check through box
-	int amountCleared = 0;
-	for (int i = y - (y % mBoxSizeY); i <= (y - (y % mBoxSizeY)) + (mBoxSizeY - 1); i++)
-	{
-		for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++)
-		{
-			if (mGridMap[i * mGridSize + j]->getValue() && !mGridMap[i * mGridSize + j]->getIsWrong())
-			{
-				amountCleared++;
-			}
-		}
-	}
-	if (amountCleared == mGridSize)
-	{
-		mCompletedBoxes.push_back((x / mBoxSizeX) + ((y % mBoxSizeY) * mBoxSizeY));
-	}
-}
-
-bool GridManager::checkWinState()
-{
-	/*
-	cout << "Rows: " << mCompletedRows.size() << endl;
-	cout << "Columns: " << mCompletedColumns.size() << endl;
-	cout << "Boxes: " << mCompletedBoxes.size() << endl;
-	cout << "\n";*/
-	if (mCompletedRows.size() == mGridSize && mCompletedColumns.size() == mGridSize && mCompletedBoxes.size() == mGridSize)
-	{
-		return true;
-	}
-	return false;
-}
-
+// Removes notes in the selected tile's box/column/row that share the same value as that tile
 void GridManager::removeNotes()
 {
 	int num = mHighlightTile->getValue();
@@ -317,6 +349,7 @@ void GridManager::removeNotes()
 	// Check through row
 	for (int i = 0; i < mGridSize; i++)
 	{
+		// Turns off note for the number
 		if (mGridMap[y * mGridSize + i]->getNoteValue(num))
 		{
 			mGridMap[y * mGridSize + i]->turnOnOffNote(num);
@@ -326,6 +359,7 @@ void GridManager::removeNotes()
 	// Check through column
 	for (int i = 0; i < mGridSize; i++)
 	{
+		// Turns off note for the number
 		if (mGridMap[i * mGridSize + x]->getNoteValue(num))
 		{
 			mGridMap[i * mGridSize + x]->turnOnOffNote(num);
@@ -337,6 +371,7 @@ void GridManager::removeNotes()
 	{
 		for (int j = x - (x % mBoxSizeX); j <= (x - (x % mBoxSizeX)) + (mBoxSizeX - 1); j++)
 		{
+			// Turns off note for the number
 			if (mGridMap[i * mGridSize + j]->getNoteValue(num))
 			{
 				mGridMap[i * mGridSize + j]->turnOnOffNote(num);

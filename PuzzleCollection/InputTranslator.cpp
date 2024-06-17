@@ -1,5 +1,6 @@
 #include "InputTranslator.h"
 
+// Assigns all interface events to fire to this class
 InputTranslator::InputTranslator() 
 {
 	EventSystem* pEventSystem = EventSystem::getInstance();

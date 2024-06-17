@@ -1,4 +1,6 @@
 #include "SoundManager.h"
+
+// Sound is on by default
 SoundManager::SoundManager()
 {
 	mSoundIsOn = true;
@@ -77,6 +79,7 @@ void SoundManager::loadSample(int index, const std::string& filename)
 	mSamples.emplace(index, al_load_sample((filename).c_str()));
 }
 
+// Plays specific sample
 void SoundManager::playSample(bool isMusic, int index)
 {
 	if (mSoundIsOn)
@@ -93,11 +96,13 @@ void SoundManager::playSample(bool isMusic, int index)
 	}
 }
 
+// Destroys the sample
 void SoundManager::destroySample(int index)
 {
 	al_destroy_sample(mSamples[index]);
 }
 
+// Turns on sound
 void SoundManager::soundOn()
 {
 	if (!mSoundIsOn)
@@ -107,6 +112,7 @@ void SoundManager::soundOn()
 	}
 }
 
+// Turns off sound
 void SoundManager::soundOff()
 {
 	if (mSoundIsOn)

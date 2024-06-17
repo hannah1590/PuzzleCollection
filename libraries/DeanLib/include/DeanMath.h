@@ -1,5 +1,10 @@
 #pragma once
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 class Vector2D;
 
 const double PI = 3.14159265358979323846;

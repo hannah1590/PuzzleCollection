@@ -3,9 +3,13 @@
 #include "GraphicsSystem.h"
 #include "GraphicsBufferManager.h"
 
-// TO-DO: Update so that backbuffer indices are loaded into the unit and not constants
+/* Holds all data for a single unit
+   by Hannah Fasco
 
-// Holds all data for a single unit
+   Currently unused but may be used in the future for win animations
+*/
+
+// TO-DO: Update so that backbuffer indices are loaded into the unit and not constants
 class Unit : public Trackable
 {
 public:
@@ -36,17 +40,17 @@ public:
 	int getPixelWidth() { return PIXEL_WIDTH; }
 	int getPixelHeight() { return PIXEL_HEIGHT; }
 private:
-	Vector2D mLocation;
-	vector<Animation*> mAnimations;
-	int mCurrentIndex;
+	Vector2D mLocation;              // Screen location of the unit
+	vector<Animation*> mAnimations;  // Vector of all animations available to the unit
+	int mCurrentIndex;               // Current animation
 
-	Vector2D mVelocity;
-	int mSpeed;
+	Vector2D mVelocity;              // Current velocity of unit
+	int mSpeed;                      // Current speed of unit
 
-	bool mIsFree;
-	bool mDidAnimationChange;
+	bool mIsFree;                    // Is unit allocated as part of the manager
+	bool mDidAnimationChange;        // Did the animation change or not
 
-	// Backbuffer indices
+	// Backbuffer indices; From original project
 	const int BLACK_SCREEN_INDEX = 0;
 	const int RED_BALL_INDEX = 1;
 	const int BLUE_BALL_INDEX = 2;

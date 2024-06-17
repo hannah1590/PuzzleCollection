@@ -4,6 +4,10 @@
 #include "CircularQueue.h"
 #include "Trackable.h"
 
+/*
+Dean Lawson
+Champlain College
+*/
 
 class MemoryPool: public Trackable
 {

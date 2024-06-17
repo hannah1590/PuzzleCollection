@@ -6,17 +6,20 @@
 #include <random>
 using namespace std;
 
+/* Creates and randomly fills up a sudoku grid
+   by Hannah Fasco
+*/ 
+
 class GridFiller : public Trackable
 {
 public:
-	GridFiller();
+	GridFiller() = default;
 	~GridFiller();
 
 	void initGrid(int size, int boxX, int boxY);
 	void clearGrid();
 
 	void fillGrid();
-	void printGrid(); // for debug purposes
 
 	vector<int> checkRow(int x, int y);
 	vector<int> checkColumn(int x, int y);
@@ -28,7 +31,9 @@ public:
 
 	int getValue(int x, int y) { return mGrid[y][x]; }
 private:
-	int mSize, mBoxSizeX, mBoxSizeY; // Column and row size is always equal while the box sizes can be different but must multiply together to equal size
-	vector<int> mNums; // All possible numbers that can be in the grid
-	vector<vector<int>> mGrid; // [y][x]
+	void printGrid();
+
+	int mSize, mBoxSizeX, mBoxSizeY;     // Size equals the amount of units on the side of the grid (9x9 = 9) while the box sizes are the amount of units on each axis that make up the box
+	vector<int> mNums;                   // All possible numbers that can be in the grid
+	vector<vector<int>> mGrid;           // Double vector that contains the grid; access grid values throguh [y][x]
 };

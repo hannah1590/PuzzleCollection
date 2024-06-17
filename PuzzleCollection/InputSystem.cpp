@@ -1,9 +1,6 @@
 #include "InputSystem.h"
 
-InputSystem::InputSystem()
-{
-}
-
+// Deletes input system
 InputSystem::~InputSystem()
 {
 	cleanup();
@@ -43,6 +40,7 @@ bool InputSystem::init()
 	return true;
 }
 
+// Uninstall allegro input systems
 void InputSystem::cleanup()
 {
 	al_uninstall_keyboard();

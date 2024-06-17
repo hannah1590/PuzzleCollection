@@ -7,9 +7,11 @@
 #include <iostream>
 #include <fstream>
 
-// Done by Nate
-// Loads all UI elements of game
-// I did all aspects with the number options/notes
+/* Loads all UI elements of the game
+   by Nate Spielman
+   All aspects involving the current puzzle game done by Hannah Fasco
+*/
+
 class HUD : public Trackable
 {
 public:
@@ -20,11 +22,12 @@ public:
 	
 	void loadColorData(Color& text, Color& tile, Color& note);
 	void loadFontData(string assetPath, string fontName, int menuFontSize, int numberFontSize);
+	void loadData(string& filename);
 
 	void update(float savedTime, bool notes);
-	void pauseTimer();
+	void pauseTimer() { mTimer.pause(true); }
 	void reset();
-	void loadData(string& filename);
+
 	int checkInput(Vector2D loc);
 
 	float getTime() { return mTime; }
@@ -36,41 +39,43 @@ public:
 private:
 	void draw();
 
+	// Pointers to game systems
 	GraphicsSystem* mGraphicsSystem;
 	GraphicsBufferManager* mGraphicsBufferManager;
 
-	map<int, Vector2D> mNumMap;
 
-	int mTileIndex;
+	map<int, Vector2D> mNumMap;    // Map of each number tile displayed at the bottom of the screen
 
-	string mTimeText;
-	string mScoreText;
-	string mNotesText;
+	int mTileIndex;                // Index for the tile buffer
 
-	Timer mTimer;
-	float mTime;
-	int mScore;
+	string mTimeText;              // Displays the time
+	string mScoreText;             // Displays current score
+	string mNotesText;             // Displays current notes for each tile
 
-	int mGridSize;
-	int mTileSize;
-	float mTilePadding;
+	Timer mTimer;                  // Holds the timer
+	float mTime;                   // Current game time
+	int mScore;                    // Current score 
 
-	float mStartNumLoc;
-	Vector2D mNotesButtonLoc;
+	int mGridSize;                 // Number of units the grid is; if 9x9 GridSize = 9
+	int mTileSize;                 // How big each tile is on the screen
+	float mTilePadding;            // Space between each tile
+
+	float mStartNumLoc;            // y value of where the number tiles start on the screen
+	Vector2D mNotesButtonLoc;      // Location of the notes button
 	
-	bool mNotesOn;
+	bool mNotesOn;                 // Whether the notes are on or off
 
-	int mDispWidth;
-	int mDispHeight;
+	int mDispWidth;                // Current display width
+	int mDispHeight;               // Current display height
 
 	// Color variables
-	Color mTextColor;
-	Color mTileColor;
-	Color mNoteUIColor;
+	Color mTextColor;              // Color of UI text 
+	Color mTileColor;              // Color of each tile
+	Color mNoteUIColor;            // Color of the note numbers in each cell
 
 	// Font variables
-	string mAssetPath;
-	string mFontName;
-	int mMenuFontSize;
-	int mNumberFontSize;
+	string mAssetPath;             // Contains the file path to game assets
+	string mFontName;              // Name of the font file
+	int mMenuFontSize;             // Basic UI font size
+	int mNumberFontSize;           // Size of the numbers in each tile
 };

@@ -2,6 +2,11 @@
 
 #include "Trackable.h"
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 template < class T >
 class MultiDimensionalArray :public Trackable
 {

@@ -3,6 +3,10 @@
 #include "InterfaceEvent.h"
 #include <EventSystem.h>
 
+/* Controls allegro keyboard and mouse 
+   by Hannah Fasco
+*/
+
 // All current supported inputs
 enum InputKeys
 {
@@ -15,11 +19,10 @@ enum InputKeys
 	ESCAPE = ALLEGRO_KEY_ESCAPE // Pause screen; exit application when paused
 };
 
-// Controls allegro keyboard and mouse 
 class InputSystem : public Trackable
 {
 public:
-	InputSystem();
+	InputSystem() = default;
 	~InputSystem();
 
 	bool init();

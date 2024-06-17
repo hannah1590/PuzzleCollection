@@ -3,7 +3,12 @@
 #include "GameEvent.h"
 #include "EventSystem.h"
 
-// Contains and manages all currently alive units
+/* Contains and manages all currently alive units
+   by Hannah Fasco
+
+   Currently unused but may be used in the future for win animations
+*/
+
 class UnitManager : public Trackable
 {
 public:
@@ -40,8 +45,8 @@ private:
 
 	const unsigned int MAX_NUM_OBJECTS = 50;
 	
-	vector<Unit*> mUnits;
-	bool mIsAnimating = true;
+	vector<Unit*> mUnits;               // Vector of units in the manager
+	bool mIsAnimating = true;           // If units are currently animating
 
-	unsigned int mNumAllocatedObjects;
+	unsigned int mNumAllocatedObjects;  // Number of units allowed in manager
 };

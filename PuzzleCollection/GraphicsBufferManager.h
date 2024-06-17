@@ -2,7 +2,10 @@
 #include "GraphicsBuffer.h"
 #include <map>
 
-// Stores all graphics buffers
+/* Stores all graphics buffers
+   By Hannah Fasco
+*/
+
 class GraphicsBufferManager : public Trackable
 {
 public:
@@ -12,10 +15,12 @@ public:
 	void clear();
 
 	void addBuffer(int index, GraphicsBuffer& newGraphicsBuffer);
-	GraphicsBuffer* getBuffer(int index) { return mGraphicsBuffers[index]; }
-	bool doesExist(int index);
 	void deleteBuffer(int index);
+
+	bool doesExist(int index);
+
+	GraphicsBuffer* getBuffer(int index) { return mGraphicsBuffers[index]; }
 	int getSize() { return mGraphicsBuffers.size(); }
 private:
-	std::map<int, GraphicsBuffer*> mGraphicsBuffers;
+	std::map<int, GraphicsBuffer*> mGraphicsBuffers;   // Map of all current graphics buffers in use
 };

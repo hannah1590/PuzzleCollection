@@ -2,6 +2,12 @@
 #include <Event.h>
 #include "InterfaceEvent.h"
 
+/* Stores all game events
+   Class base and puzzle additions by Hannah Fasco
+   Contributions to UI and game state events done by Nate Spielman
+*/
+
+// All kinds of game events that can occur
 enum GameEventType
 {
 	START_STOP_EVENT = 2,
@@ -19,7 +25,6 @@ enum GameEventType
 	NUM_GAME_EVENT_TYPES
 };
 
-// Stores all game events
 class GameEvent : public Event
 {
 public:
@@ -31,6 +36,6 @@ public:
 
 	GameEventType getType() const { return mGameType; }
 private:
-	Vector2D mMouseLocation;
-	GameEventType mGameType;
+	Vector2D mMouseLocation;   // Current location of the mouse on the screen
+	GameEventType mGameType;   // Type of event that just occured
 };

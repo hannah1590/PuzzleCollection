@@ -2,6 +2,11 @@
 
 #include <Trackable.h>
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 class Event;
 class EventSystem;
 

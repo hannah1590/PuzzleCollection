@@ -9,6 +9,11 @@ enum EventType;
 
 using namespace std;
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 class EventSystem:public Trackable
 {
 public:

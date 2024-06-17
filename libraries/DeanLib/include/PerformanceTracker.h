@@ -6,6 +6,11 @@
 #include <string>
 #include "Trackable.h"
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 class PerformanceTracker: public Trackable
 {
 public:

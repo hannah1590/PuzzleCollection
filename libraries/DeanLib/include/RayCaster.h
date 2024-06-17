@@ -5,6 +5,11 @@
 
 #include <vector>
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 class RayCaster :public Trackable
 {
 public:

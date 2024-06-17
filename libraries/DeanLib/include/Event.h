@@ -5,6 +5,11 @@
 
 using namespace std;
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 enum EventType
 {
 	INVALID_EVENT_TYPE = -1,

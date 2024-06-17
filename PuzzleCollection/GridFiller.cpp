@@ -1,15 +1,12 @@
 #include "GridFiller.h";
-GridFiller::GridFiller()
-{
 
-}
-
+// Cleans up grid information
 GridFiller::~GridFiller()
 {
     clearGrid();
 }
 
-// Fills grid with 0s
+// Fills grid with 0s based on the size of the grid
 void GridFiller::initGrid(int size, int boxX, int boxY)
 {
     mSize = size;
@@ -28,9 +25,22 @@ void GridFiller::initGrid(int size, int boxX, int boxY)
     }
 }
 
-// Currently for Sudoku
-// Fills grid with randomly generated numbers that makes a full Sudoku board
-// 2D Vector = [y][x]
+// Clears grid
+void GridFiller::clearGrid()
+{
+    for (auto& i : mGrid)
+    {
+        i.clear();
+    }
+    mGrid.clear();
+    mNums.clear();
+}
+
+/*
+   Currently for Sudoku
+   Fills grid with randomly generated numbers that makes a full Sudoku board
+   2D Vector = [y][x]
+*/
 void GridFiller::fillGrid()
 {
     vector<int> rowOptions;
@@ -44,7 +54,6 @@ void GridFiller::fillGrid()
     {
         for (int x = 0; x < mSize; x++)
         {
-           
             rowOptions = checkRow(x, y);
             columnOptions = checkColumn(x, y);
             boxOptions = checkBox(x, y);
@@ -65,6 +74,7 @@ void GridFiller::fillGrid()
         }
     }
 
+    // Loops through and rechecks all positions that equal zero or ones that may be repeats
     while (!toCheck.empty() || !zeros.empty())
     {
         Vector2D current;
@@ -150,28 +160,6 @@ void GridFiller::fillGrid()
     }
 }
 
-// Check which numbers are still available in a column
-vector<int> GridFiller::checkColumn(int x, int y)
-{
-    vector<int> numAvailable = mNums;
-
-    // Check from the current y to the beginning of the column
-    int temp = 1;
-    while (y - temp >= 0)
-    {
-        // Finds location of the number
-        auto it = find(numAvailable.begin(), numAvailable.end(), mGrid[y - temp][x]);
-
-        // Remove number from available
-        if (it != numAvailable.end()) 
-        {
-            numAvailable.erase(it);
-        }
-        temp++;
-    }
-    return numAvailable;
-}
-
 // Check which numbers are still available for a row
 vector<int> GridFiller::checkRow(int x, int y)
 {
@@ -183,6 +171,28 @@ vector<int> GridFiller::checkRow(int x, int y)
     {
         // Finds location of the number
         auto it = find(numAvailable.begin(), numAvailable.end(), mGrid[y][x - temp]);
+
+        // Remove number from available
+        if (it != numAvailable.end())
+        {
+            numAvailable.erase(it);
+        }
+        temp++;
+    }
+    return numAvailable;
+}
+
+// Check which numbers are still available in a column
+vector<int> GridFiller::checkColumn(int x, int y)
+{
+    vector<int> numAvailable = mNums;
+
+    // Check from the current y to the beginning of the column
+    int temp = 1;
+    while (y - temp >= 0)
+    {
+        // Finds location of the number
+        auto it = find(numAvailable.begin(), numAvailable.end(), mGrid[y - temp][x]);
 
         // Remove number from available
         if (it != numAvailable.end()) 
@@ -262,6 +272,7 @@ Vector2D GridFiller::findRepeatInRow(int x, int y, int num)
     return Vector2D(-1, -1);
 }
 
+// Debug function
 void GridFiller::printGrid()
 {
     for (int i = 0; i < mSize; i++)
@@ -282,15 +293,4 @@ void GridFiller::printGrid()
     }
 
     cout << "\n\n";
-}
-
-// Clears grid
-void GridFiller::clearGrid()
-{
-    for (auto& i : mGrid)
-    {
-        i.clear();
-    }
-    mGrid.clear();
-    mNums.clear();
 }

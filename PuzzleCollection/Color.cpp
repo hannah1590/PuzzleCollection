@@ -17,6 +17,7 @@ Color::Color(int r, int g, int b, int a)
 	mA = a;
 }
 
+// Used to set rgba when the color was declared with the default constructor
 void Color::setValues(int r, int g, int b, int a)
 {
 	mR = r;
@@ -25,7 +26,7 @@ void Color::setValues(int r, int g, int b, int a)
 	mA = a;
 }
 
-
+// Allows the comparison of colors
 bool Color::operator==(Color color)
 {
 	if (mR == color.getR() && mG == color.getG() && mB == color.getB() && mA == color.getA())

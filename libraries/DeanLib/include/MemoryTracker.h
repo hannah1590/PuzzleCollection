@@ -3,6 +3,10 @@
 #include <unordered_map>
 #include <iostream>
 
+/*
+Dean Lawson
+Champlain College
+*/
 
 class MemoryTracker
 {

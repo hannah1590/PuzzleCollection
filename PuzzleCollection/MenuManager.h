@@ -9,7 +9,10 @@
 #include "Font.h"
 #include "Color.h"
 
-// Done by Nate
+/* Controls all different game menus
+   by Nate Spielman
+   All aspects involving the current puzzle game done by Hannah Fasco
+*/
 
 class MenuManager : public Trackable
 {
@@ -20,6 +23,7 @@ public:
 	void loadColorData(Color& text);
 	void loadFontData(string assetPath, string fontName, int menuFontSize, int smallMenuFontSize);
 
+	// Getters
 	bool shouldQuit() { return mShouldQuit; }
 	bool getIsMenuOpen() { return mIsMenuOpen; }
 	int getCurrentMenu() { return mCurrentMenu; }
@@ -31,6 +35,7 @@ public:
 	void loadData(string& filename);
 	void checkInput(Vector2D loc);
 
+	// Setters
 	void setToMain() { mCurrentMenu = 0; }
 	void setToGameOver() { mCurrentMenu = 2; }
 	void setToWin(int score) { mCurrentMenu = 7; mScore = score; mIsMenuOpen = true; }
@@ -38,25 +43,26 @@ public:
 
 private:
 	GraphicsSystem* mGraphicsSystem;
-	bool mShouldQuit;
-	bool mIsMenuOpen;
-	bool mIsSoundOn;
 
-	int mCurrentMenu;
-	int mCurrentDifficulty;
-	int mCurrentGridSize;
+	bool mShouldQuit;              // If user is quitting game
+	bool mIsMenuOpen;              // If a menu is open
+	bool mIsSoundOn;               // If sound is turned on
+	bool mIsGameStarted;           // Whether the game has been started or not
+						           
+	int mCurrentMenu;              // Current menu open
+	int mCurrentDifficulty;        // Current difficulty selected
+	int mCurrentGridSize;          // Current grid size selected
 
-	map<string, string> mTextMap;
+	map<string, string> mTextMap;  // Map that contains the text for each different menu
 
-	int mScore;
+	int mScore;                    // Current game score
 
-	// Color variables
-	Color mTextColor;
+	Color mTextColor;              // Menu text color
 
 	// Font variables
-	string mAssetPath; 
-	string mFontName;
-	int mMenuFontSize;
-	int mSmallMenuFontSize;
-	int mTextBuffer;
+	string mAssetPath;             // Contains the file path to game assets
+	string mFontName;              // Name of the font file 
+	int mMenuFontSize;             // Basic UI font size
+	int mSmallMenuFontSize;        // Smaller UI font size
+	int mTextBuffer;               // Space in between menu text
 };

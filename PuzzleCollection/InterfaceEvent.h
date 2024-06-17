@@ -3,6 +3,11 @@
 #include <EventSystem.h>
 #include "Game.h"
 
+/* Stores all interface events
+   by Hannah Fasco
+*/
+
+// Different types of interface events
 enum InterfaceEventType 
 {
 	MOUSE_CLICK_EVENT = NUM_BASE_EVENT_TYPES,
@@ -10,7 +15,6 @@ enum InterfaceEventType
 	NUM_INTERFACE_EVENT_TYPES
 };
 
-// Stores all interface events
 class InterfaceEvent : public Event
 {
 public:
@@ -25,8 +29,8 @@ public:
 
 	InterfaceEventType getType() const { return mInterfaceType; }
 private:
-	int mInputKey;
-	Vector2D mMouseLocation;
-	InterfaceEventType mInterfaceType;
+	int mInputKey;                      // Current input used; all options found in InputSystem.h
+	Vector2D mMouseLocation;            // Location of mouse on screen
+	InterfaceEventType mInterfaceType;  // Type of event that just occured
 };
 

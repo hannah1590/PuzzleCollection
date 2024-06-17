@@ -2,11 +2,13 @@
 #include <EventSystem.h>
 #include "GameEvent.h"
 
+// Establishes default menu variables
 MenuManager::MenuManager(GraphicsSystem& graphicsSystem)
 {
 	mGraphicsSystem = &graphicsSystem;
 	mShouldQuit = false;
 	mIsMenuOpen = true;
+	mIsGameStarted = false;
 	mCurrentMenu = 0;
 	mCurrentDifficulty = 1;
 	mCurrentGridSize = 0;
@@ -16,11 +18,13 @@ MenuManager::~MenuManager()
 {
 }
 
+// Loads menu color
 void MenuManager::loadColorData(Color& text)
 {
 	mTextColor = text;
 }
 
+// Loads font data needed for the different menus
 void MenuManager::loadFontData(string assetPath, string fontName, int menuFontSize, int smallMenuFontSize)
 {
 	mAssetPath = assetPath;
@@ -30,6 +34,7 @@ void MenuManager::loadFontData(string assetPath, string fontName, int menuFontSi
 	mTextBuffer = menuFontSize + 20;
 }
 
+// Draws current menu
 void MenuManager::draw()
 {
 	Font menuFont(mAssetPath + mFontName, mMenuFontSize);
@@ -123,7 +128,7 @@ void MenuManager::draw()
 
 		if (mCurrentMenu == 5)
 		{
-			//Grid Size Menu
+			//GRID SIZE MENU
 			Vector2D loc1(300, 100);
 			string text1;
 			string text2 = mTextMap["Menu5_2"]; //9x9
@@ -142,7 +147,7 @@ void MenuManager::draw()
 
 		if (mCurrentMenu == 6)
 		{
-			// Sound Menu
+			//SOUND MENU
 			Vector2D loc1(300, 100);
 			string text1;
 			string text2 = mTextMap["Menu6_2"]; //ON
@@ -176,6 +181,7 @@ void MenuManager::draw()
 	}
 }
 
+// Opens/closes the menu
 void MenuManager::toggleMenu()
 {
 	//1 is the pause menu so if the pause menu is open we can toggle it to being off
@@ -190,6 +196,88 @@ void MenuManager::toggleMenu()
 	}
 }
 
+// Loads all menu text data from the file and uploads it to the map
+void MenuManager::loadData(string& filename)
+{
+	mTextMap.clear();
+	ifstream data(filename);
+	string currentString;
+	int amount;
+
+	//MAIN MENU
+	data >> amount;
+	for (int i = 1; i < amount + 1; i++)
+	{
+		string menuKey = "Menu0_" + to_string(i);
+		data >> currentString;
+		mTextMap[menuKey] = currentString;
+	}
+
+	//PAUSE MENU
+	data >> amount;
+	for (int i = 1; i < amount + 1; i++)
+	{
+		string menuKey = "Menu1_" + to_string(i);
+		getline(data, currentString, ',');
+		mTextMap[menuKey] = currentString;
+	}
+
+	//GAME OVER MENU
+	data >> amount;
+	for (int i = 1; i < amount + 1; i++)
+	{
+		string menuKey = "Menu2_" + to_string(i);
+		getline(data, currentString, ',');
+		mTextMap[menuKey] = currentString;
+	}
+
+	//OPTIONS MENU
+	data >> amount;
+	for (int i = 1; i < amount + 1; i++)
+	{
+		string menuKey = "Menu3_" + to_string(i);
+		getline(data, currentString, ',');
+		mTextMap[menuKey] = currentString;
+	}
+
+	//DIFFICULTY MENU
+	data >> amount;
+	for (int i = 1; i < amount + 1; i++)
+	{
+		string menuKey = "Menu4_" + to_string(i);
+		data >> currentString;
+		mTextMap[menuKey] = currentString;
+	}
+
+	//GRID SIZE MENU
+	data >> amount;
+	for (int i = 1; i < amount + 1; i++)
+	{
+		string menuKey = "Menu5_" + to_string(i);
+		getline(data, currentString, ',');
+		mTextMap[menuKey] = currentString;
+	}
+
+	//SOUND MENU
+	data >> amount;
+	for (int i = 1; i < amount + 1; i++)
+	{
+		string menuKey = "Menu6_" + to_string(i);
+		data >> currentString;
+		mTextMap[menuKey] = currentString;
+	}
+
+	//WIN SCREEN
+	data >> amount;
+	for (int i = 1; i < amount + 1; i++)
+	{
+		string menuKey = "Menu7_" + to_string(i);
+		getline(data, currentString, ',');
+		mTextMap[menuKey] = currentString;
+	}
+}
+
+// Checks whether the user clicked on a part of the menu
 void MenuManager::checkInput(Vector2D loc)
 {
 	EventSystem* pEventSystem = EventSystem::getInstance();
@@ -207,12 +295,13 @@ void MenuManager::checkInput(Vector2D loc)
 			{
 				//START
 				mIsMenuOpen = false;
+				mIsGameStarted = true;
 				mCurrentMenu++;
 				GameEvent gameEvent(NEW_GAME_EVENT);
 				pEventSystem->fireEvent(gameEvent);
 			}
 
-			if (loc.getY() > y1 + spacing && loc.getY() < y2 + spacing)
+			if (loc.getY() > y1 + spacing && loc.getY() < y2 + spacing && mIsGameStarted)
 			{
 				//LOAD
 				mIsMenuOpen = false;
@@ -364,85 +453,5 @@ void MenuManager::checkInput(Vector2D loc)
 			}
 		}
 		return;
-	}
-}
-
-void MenuManager::loadData(string& filename)
-{
-	mTextMap.clear();
-	ifstream data(filename);
-	string currentString;
-	int amount;
-
-	//MAIN MENU
-	data >> amount;
-	for (int i = 1; i < amount + 1; i++)
-	{
-		string menuKey = "Menu0_" + to_string(i);
-		data >> currentString;
-		mTextMap[menuKey] = currentString;
-	}
-
-	//PAUSE MENU
-	data >> amount;
-	for (int i = 1; i < amount + 1; i++)
-	{
-		string menuKey = "Menu1_" + to_string(i);
-		getline(data, currentString, ',');
-		mTextMap[menuKey] = currentString;
-	}
-
-	//GAME OVER MENU
-	data >> amount;
-	for (int i = 1; i < amount + 1; i++)
-	{
-		string menuKey = "Menu2_" + to_string(i);
-		getline(data, currentString, ',');
-		mTextMap[menuKey] = currentString;
-	}
-
-	//OPTIONS MENU
-	data >> amount;
-	for (int i = 1; i < amount + 1; i++)
-	{
-		string menuKey = "Menu3_" + to_string(i);
-		getline(data, currentString, ',');
-		mTextMap[menuKey] = currentString;
-	}
-
-	//DIFFICULTY MENU
-	data >> amount;
-	for (int i = 1; i < amount + 1; i++)
-	{
-		string menuKey = "Menu4_" + to_string(i);
-		data >> currentString;
-		mTextMap[menuKey] = currentString;
-	}
-
-	//GRID SIZE MENU
-	data >> amount;
-	for (int i = 1; i < amount + 1; i++)
-	{
-		string menuKey = "Menu5_" + to_string(i);
-		getline(data, currentString, ',');
-		mTextMap[menuKey] = currentString;
-	}
-
-	//SOUND MENU
-	data >> amount;
-	for (int i = 1; i < amount + 1; i++)
-	{
-		string menuKey = "Menu6_" + to_string(i);
-		data >> currentString;
-		mTextMap[menuKey] = currentString;
-	}
-
-	//WIN SCREEN
-	data >> amount;
-	for (int i = 1; i < amount + 1; i++)
-	{
-		string menuKey = "Menu7_" + to_string(i);
-		getline(data, currentString, ',');
-		mTextMap[menuKey] = currentString;
 	}
 }

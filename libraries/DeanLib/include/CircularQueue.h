@@ -2,6 +2,11 @@
 #include <Trackable.h>
 #include <DeanLibDefines.h>
 
+/* 
+Dean Lawson
+Champlain College
+*/
+
 template < class T >
 class CircularQueue : public Trackable
 {

@@ -5,7 +5,10 @@
 #include "InterfaceEvent.h"
 #include "GameEvent.h"
 
-// Translates InterfaceEvents into GameEvents
+/* Translates InterfaceEvents into GameEvents
+   by Hannah Fasco
+*/
+
 class InputTranslator : public EventListener
 {
 public:
@@ -15,6 +18,6 @@ public:
 	void handleEvent(const Event& theEvent);
 
 private:
-	bool mGameStarted;
-	bool mGamePaused;
+	bool mGameStarted;  // Whether the game has started or not
+	bool mGamePaused;   // If the game is currently paused
 };

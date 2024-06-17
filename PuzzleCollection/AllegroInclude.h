@@ -1,4 +1,5 @@
 #pragma once
+// Contains all the allegro includes to simplify including them in other files
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>

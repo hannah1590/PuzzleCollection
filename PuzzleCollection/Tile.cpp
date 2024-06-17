@@ -1,5 +1,6 @@
 #include "Tile.h"
 
+// Assigns base tile variables and sets all note values to false
 Tile::Tile(Vector2D pos, Vector2D gridPos, int gridSize)
 {
 	mPosition = pos;
@@ -13,11 +14,13 @@ Tile::Tile(Vector2D pos, Vector2D gridPos, int gridSize)
 	}	
 }
 
+// Clean up notes
 Tile::~Tile()
 {
 	mNotes.clear();
 }
 
+// Init graphic variables
 void Tile::init(GraphicsSystem& graphicsSystem, GraphicsBufferManager& graphicsBufferManager, float tilePadding)
 {
 	mGraphicsSystem = &graphicsSystem;
@@ -25,6 +28,7 @@ void Tile::init(GraphicsSystem& graphicsSystem, GraphicsBufferManager& graphicsB
 	mTilePadding = tilePadding;
 }
 
+// Load all colors needed for the tile
 void Tile::loadColorData(Color& default, Color& playerInput, Color& sameNumber, Color& wrong)
 {
 	mDefaultNumberColor = default;
@@ -36,6 +40,7 @@ void Tile::loadColorData(Color& default, Color& playerInput, Color& sameNumber, 
 	mOriginalColor = mCurrentColor;
 }
 
+// Load all font data needed for the tile
 void Tile::loadFontData(string assetPath, string fontName, int numberFontSize, int noteFontSize)
 {
 	mAssetPath = assetPath;
@@ -44,6 +49,16 @@ void Tile::loadFontData(string assetPath, string fontName, int numberFontSize, i
 	mNoteFontSize = noteFontSize;
 }
 
+// Change the current number color on the tile
+void Tile::changeFontColor(Color& color)
+{
+	if (color == mDefaultNumberColor)
+		mCurrentColor = mOriginalColor;
+	else
+		mCurrentColor = color;
+}
+
+// Make the tile default; given at the start 
 void Tile::setDefault()
 {
 	mDefault = true;
@@ -57,14 +72,7 @@ void Tile::turnOnOffNote(int value)
 	mNotes[value - 1] = !mNotes[value - 1];
 }
 
-void Tile::changeFontColor(Color& color)
-{
-	if (color == mDefaultNumberColor)
-		mCurrentColor = mOriginalColor;
-	else
-		mCurrentColor = color;
-}
-
+// Draw the tile
 void Tile::draw(int bufferIndex)
 {
 	Font numberFont(mAssetPath + mFontName, mNumberFontSize);

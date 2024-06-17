@@ -2,6 +2,11 @@
 
 #pragma once
 
+/*
+Dean Lawson
+Champlain College
+*/
+
 #include <Trackable.h>
 
 /*template <class T, void (*F)(T)>
